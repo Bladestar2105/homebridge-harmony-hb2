@@ -130,7 +130,10 @@ HarmonyPlatform.prototype = {
 
       platform._foundAccessories.push(accessory);
 
-      if (accessory.category == AccessoryType.TELEVISION) {
+      if (
+        accessory.category == AccessoryType.TELEVISION ||
+        accessory.category == AccessoryType.AUDIO_RECEIVER
+      ) {
         this._oneTVAdded = true;
         this.log(
           'WARNING - configureAccessory - TV accessory added in your bridge from cache, if another plugin is exposing a TV accessory this one might not be visible in your remote widget'

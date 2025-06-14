@@ -23,6 +23,7 @@ function HarmonySubPlatform(log, config, api, mainPlatform) {
   this.harmonyBase.configCommonProperties(log, config, this);
 
   this.TVAccessory = HarmonyTools.checkParameter(config['TVAccessory'], true);
+  this.receiverIcon = HarmonyTools.checkParameter(config['ReceiverIcon'], false);
 
   this.sortInput = HarmonyTools.checkParameter(config['sortInput'], 0);
 
@@ -242,7 +243,9 @@ HarmonySubPlatform.prototype = {
       accessoriesToAdd.push(myHarmonyAccessory);
     }
 
-    myHarmonyAccessory.category = Categories.TELEVISION;
+    if (this.receiverIcon) myHarmonyAccessory.category = Categories.AUDIO_RECEIVER;
+    else myHarmonyAccessory.category = Categories.TELEVISION;
+
     this._confirmedAccessories.push(myHarmonyAccessory);
 
     this.log('(' + this.name + ')' + 'INFO - configuring Main TV Service');
@@ -488,8 +491,12 @@ HarmonySubPlatform.prototype = {
     HarmonyAsTVKeysTools.mapKeys(this, controlGroup, inputName, inputSourceService);
 
     if (this.savedNames && this.savedNames[inputId]) {
+      this.log(
+        '(' + this.name + ')' + 'INFO - Input Service name saved - ' + this.savedNames[inputId]
+      );
       inputServiceName = this.savedNames[inputId];
     } else {
+      this.log('(' + this.name + ')' + 'INFO - Input Service name - ' + inputName);
       inputServiceName = inputName;
     }
 

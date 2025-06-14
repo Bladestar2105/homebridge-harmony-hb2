@@ -56,6 +56,11 @@
         "type": "boolean",
         "default": true
       },
+      "ReceiverIcon": {
+        "title": "TV accessory with a receiver Icon",
+        "type": "boolean",
+        "default": false
+      },
       "sortInput": {
         "title": "sort input list in TV accessory : 0-default,1:Alpha,2:activityOrder property of hub, 3:activitiesToPublishAsInputForTVMode order (defaults to 0).",
         "type": "integer",
@@ -340,6 +345,11 @@
               "type": "boolean",
               "default": false
             },
+            "ReceiverIcon": {
+              "title": "TV accessory with a receiver Icon",
+              "type": "boolean",
+              "default": false
+            },
             "sortInput": {
               "title": "sort input list in TV accessory : 0-default,1:Alpha,2:activityOrder property of hub, 3:activitiesToPublishAsInputForTVMode order (defaults to 0).",
               "type": "integer",
@@ -617,6 +627,10 @@
         {
           "key": "TVAccessory",
           "description": "Publish hub with its activities as a TV Accessory"
+        },
+        {
+          "key": "ReceiverIcon",
+          "description": "Publish TV accessory with a receiver Icon"
         },
         {
           "key": "sortInput",
@@ -991,6 +1005,10 @@
                     {
                       "key": "otherPlatforms[].TVAccessory",
                       "description": "Publish hub with its activities as a TV Accessory"
+                    },
+                    {
+                      "key": "otherPlatforms[].ReceiverIcon",
+                      "description": "Publish TV Accessory with a reciever icon"
                     },
                     {
                       "key": "otherPlatforms[].sortInput",

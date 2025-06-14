@@ -352,7 +352,7 @@ HarmonyBase.prototype = {
     //creating accessories
 
     for (const accessory of accessoriesToAdd) {
-      let isTv = accessory.category == AccessoryType.TELEVISION;
+      let isTv = accessory.category == (AccessoryType.AUDIO_RECEIVER || AccessoryType.TELEVISION);
 
       if (
         isTv &&
@@ -1156,7 +1156,7 @@ HarmonyBase.prototype = {
       for (let j = 0, len = commandFunctions.length; j < len; j++) {
         if ((foundToggle && commandFunctions[j].key === 'PowerToggle') || !foundToggle) {
           if (harmonyPlatform.publishDevicesAsIndividualAccessories) {
-            let name = switchName + '-' + (foundNonStateless ? 'Power' : commandFunctions[j].key);
+            let name = switchName + ' ' + (foundNonStateless ? 'Power' : commandFunctions[j].key);
 
             myHarmonyAccessory = this.checkAccessory(harmonyPlatform, name);
             if (!myHarmonyAccessory) {
@@ -1168,7 +1168,7 @@ HarmonyBase.prototype = {
             harmonyPlatform._confirmedAccessories.push(myHarmonyAccessory);
           }
 
-          let subType = switchName + '-' + (foundNonStateless ? 'Power' : commandFunctions[j].key);
+          let subType = switchName + ' ' + (foundNonStateless ? 'Power' : commandFunctions[j].key);
           let service = this.getSwitchService(
             harmonyPlatform,
             myHarmonyAccessory,
@@ -1221,7 +1221,7 @@ HarmonyBase.prototype = {
     let functionsKey = '';
 
     //check stateless
-    var OnOffcommands = commands.split('\\');
+    var OnOffcommands = commands.split('§');
 
     for (let a = 0, len = OnOffcommands.length; a < len; a++) {
       let commands = OnOffcommands[a].split(';');
@@ -1266,7 +1266,7 @@ HarmonyBase.prototype = {
       );
     } else {
       if (harmonyPlatform.publishDevicesAsIndividualAccessories) {
-        let name = switchName + '-' + functionsKey;
+        let name = switchName + ' ' + functionsKey;
         myHarmonyAccessory = this.checkAccessory(harmonyPlatform, name);
         if (!myHarmonyAccessory) {
           myHarmonyAccessory = this.createAccessory(harmonyPlatform, name);
@@ -1277,7 +1277,7 @@ HarmonyBase.prototype = {
         harmonyPlatform._confirmedAccessories.push(myHarmonyAccessory);
       }
 
-      let subType = switchName + '-' + functionsKey;
+      let subType = switchName + ' ' + functionsKey;
       let service = this.getSwitchService(
         harmonyPlatform,
         myHarmonyAccessory,
@@ -1345,9 +1345,9 @@ HarmonyBase.prototype = {
             let controlGroup = devices[i].controlGroup;
 
             //default mode
-            if (commands.length === 1 || (commands.length === 2 && commands[1] === '\\')) {
+            if (commands.length === 1 || (commands.length === 2 && commands[1] === '§')) {
               var isStateless =
-                harmonyPlatform.devicesToPublishAsAccessoriesSwitch[c].split('\\').length == 1;
+                harmonyPlatform.devicesToPublishAsAccessoriesSwitch[c].split('§').length == 1;
 
               accessoriesToAdd.push.apply(
                 accessoriesToAdd,
@@ -1395,7 +1395,7 @@ HarmonyBase.prototype = {
   },
 
   checkAccessory(harmonyPlatform, name) {
-    let fullName = harmonyPlatform.name + (name ? '-' + name : '');
+    let fullName = harmonyPlatform.name + (name ? ' ' + name : '');
     let uuid = UUIDGen.generate(fullName);
     let foundAccessory = harmonyPlatform._foundAccessories.find((x) => x.UUID == uuid);
 
@@ -1424,7 +1424,7 @@ HarmonyBase.prototype = {
   },
 
   createAccessory(harmonyPlatform, name) {
-    let fullName = harmonyPlatform.name + (name ? '-' + name : '');
+    let fullName = harmonyPlatform.name + (name ? ' ' + name : '');
     harmonyPlatform.log('(' + harmonyPlatform.name + ')' + 'INFO - Adding Accessory : ' + fullName);
     let uuid = UUIDGen.generate(fullName);
     harmonyPlatform.log.debug(
@@ -1440,7 +1440,7 @@ HarmonyBase.prototype = {
     /*
       harmonyPlatform.hubRemoteId == undefined
         ? harmonyPlatform.hubIP
-        : harmonyPlatform.name + '-' + harmonyPlatform.hubRemoteId;
+        : harmonyPlatform.name + ' ' + harmonyPlatform.hubRemoteId;
 
     */
 

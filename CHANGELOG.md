@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2.0.0beta
+
+- [FIX] #350, moving / separator to §
+- [NEW] #444, homebridge 2.0 support
+- [NEW] #405, Allow to configure AUDIO_RECEIVER accessory
+
 ## 1.6.3
 
 - [FIX] Change heading level h6 to h5 #418. Thanks to @lisanet

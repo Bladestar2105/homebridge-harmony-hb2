@@ -133,6 +133,7 @@ Fields:
 - `hubName` is the name of your hub in harmony app (optional, but mandatory if you have mutliple hubs). In case both hubName and hubIP are not set, it will discover your hub automatically, providing there is only one
 - `hubIP` is the static IP address of the hub (optional). A static IP address is required.
 - `TVAccessory` publish hub with its activities as a TV Accessory (defaults to true).
+- `ReceiverIcon` publish TV Accessory with a receiver icon (defaults to false).
 - `sortInput` sort input list in TV accessory : 0-default,1:Alpha,2:activityOrder property of hub, 3:activitiesToPublishAsInputForTVMode order (defaults to 0).
 - `switchAccessories` publish all activities as a Switch Accessory (defaults to false).
 - `activitiesToPublishAsAccessoriesSwitch` array of Activities you want to expose as switches (all by default if switchAccessories is set to true, otherwise specify the list you want)
@@ -186,12 +187,12 @@ will add
 
 All commands available are displayed at startup. If no name is specified, it will be added with a generated name.
 
-If you use a "\", it will do a non stateless switch and send commands before the \ on On, and after on Off. Be aware that it can be out of sync .
+If you use a "§", it will do a non stateless switch and send commands before the § on On, and after on Off. Be aware that it can be out of sync .
 
 As a sample :
 
 ```json
-  "devicesToPublishAsAccessoriesSwitch" : ["Apple TV Gen 4|Button1;Play\Pause","Caisson;/","Sony PS4;/","MyDevice;/","MyDevice;Up;Up|2500;Down\Down;Down|2500;Up"]
+  "devicesToPublishAsAccessoriesSwitch" : ["Apple TV Gen 4|Button1;Play§Pause","Caisson;§","Sony PS4;§","MyDevice;§","MyDevice;Up;Up|2500;Down§Down;Down|2500;Up"]
 ```
 
 will add
