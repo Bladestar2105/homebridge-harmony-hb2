@@ -1,4 +1,5 @@
-var Service, Characteristic, Accessory, Categories, AccessControlManagement, AccessControlEvent;
+var Service, Characteristic, AccessoryType, AccessControlManagement, AccessControlEvent;
+
 const HarmonyBase = require('./harmonyBase').HarmonyBase;
 const HarmonyConst = require('./harmonyConst');
 const HarmonyTools = require('./harmonyTools.js');
@@ -13,7 +14,7 @@ function HarmonySubPlatform(log, config, api, mainPlatform) {
   Service = api.hap.Service;
   Characteristic = api.hap.Characteristic;
   Accessory = api.hap.Accessory;
-  Categories = api.hap.Categories;
+  AccessoryType = api.hap.Categories;
   AccessControlManagement = api.hap.AccessControlManagement;
   AccessControlEvent = api.hap.AccessControlEvent;
 
@@ -50,7 +51,7 @@ function HarmonySubPlatform(log, config, api, mainPlatform) {
   );
 
   if (this.TVAccessory) {
-    this.mainActivity = (this.devMode ? 'DEV' : '') + config['mainActivity'];
+    this.mainActivity = config['mainActivity'];
     this.playPauseBehavior = HarmonyTools.checkParameter(config['playPauseBehavior'], false);
 
     this.activitiesToPublishAsInputForTVMode = config['activitiesToPublishAsInputForTVMode'];
@@ -178,25 +179,25 @@ HarmonySubPlatform.prototype = {
   },
 
   readSwitchAccessories: function (data) {
-    let activities = data.data.activity;
+    var activities = data.data.activity;
 
-    let accessoriesToAdd = [];
+    var accessoriesToAdd = [];
     var myHarmonyAccessory;
-    let name = (this.devMode ? 'DEV' : '') + 'Switch';
 
     if (!this.publishSwitchActivitiesAsIndividualAccessories) {
+      var name = 'Switch';
       myHarmonyAccessory = this.harmonyBase.checkAccessory(this, name);
       if (!myHarmonyAccessory) {
         myHarmonyAccessory = this.harmonyBase.createAccessory(this, name);
         accessoriesToAdd.push(myHarmonyAccessory);
       }
-      myHarmonyAccessory.category = Categories.SWITCH;
+      myHarmonyAccessory.category = AccessoryType.SWITCH;
       this._confirmedAccessories.push(myHarmonyAccessory);
     }
 
     for (let i = 0, len = activities.length; i < len; i++) {
       if (this.showActivity(activities[i])) {
-        let switchName = this.devMode ? 'DEV' + activities[i].label : activities[i].label;
+        var switchName = activities[i].label;
 
         if (this.publishSwitchActivitiesAsIndividualAccessories) {
           //Handle special case
@@ -207,19 +208,19 @@ HarmonySubPlatform.prototype = {
             myHarmonyAccessory = this.harmonyBase.createAccessory(this, switchName);
             accessoriesToAdd.push(myHarmonyAccessory);
           }
-          myHarmonyAccessory.category = Categories.SWITCH;
+          myHarmonyAccessory.category = AccessoryType.SWITCH;
           this._confirmedAccessories.push(myHarmonyAccessory);
         }
 
         this.log('(' + this.name + ')' + 'INFO - Discovered Activity : ' + switchName);
-        let subType = switchName;
-        let service = this.harmonyBase.getSwitchService(
+        var subType = switchName;
+        var service = this.harmonyBase.getSwitchService(
           this,
           myHarmonyAccessory,
           switchName,
           subType
         );
-
+        service.activityName = activities[i].label;
         service.activityId = activities[i].id;
         service.type = HarmonyConst.ACTIVITY_TYPE;
         this._confirmedServices.push(service);
@@ -232,27 +233,27 @@ HarmonySubPlatform.prototype = {
   },
 
   readTVAccessories: function (data) {
-    let activities = data.data.activity;
-    let accessoriesToAdd = [];
-    let name = (this.devMode ? 'DEV' : '') + 'TV';
+    var activities = data.data.activity;
+    var accessoriesToAdd = [];
+    var name = 'TV';
 
-    myHarmonyAccessory = this.harmonyBase.checkAccessory(this, name);
+    var myHarmonyAccessory = this.harmonyBase.checkAccessory(this, name);
 
     if (!myHarmonyAccessory) {
       myHarmonyAccessory = this.harmonyBase.createAccessory(this, name);
       accessoriesToAdd.push(myHarmonyAccessory);
     }
 
-    if (this.receiverIcon) myHarmonyAccessory.category = Categories.AUDIO_RECEIVER;
-    else myHarmonyAccessory.category = Categories.TELEVISION;
+    myHarmonyAccessory.category = AccessoryType.TELEVISION;
+    if (this.receiverIcon) myHarmonyAccessory.category = AccessoryType.AUDIO_RECEIVER;
 
     this._confirmedAccessories.push(myHarmonyAccessory);
 
     this.log('(' + this.name + ')' + 'INFO - configuring Main TV Service');
     this.configureMainService(myHarmonyAccessory);
 
-    let mainActivityConfigured = false;
-    let defaultActivity = undefined;
+    var mainActivityConfigured = false;
+    var defaultActivity = undefined;
 
     //Pre-sort so the input sorces are set alphabetically or by activityOrder
     // "sort input list in TV accessory : 0-default,1:Alpha,2:activityOrder property of hub, 3:activitiesToPublishAsInputForTVMode order (defaults to 0).",
@@ -269,11 +270,11 @@ HarmonySubPlatform.prototype = {
 
     for (let i = 0, len = activities.length; i < len; i++) {
       if (this.showInput(activities[i])) {
-        let inputName = this.devMode ? 'DEV' + activities[i].label : activities[i].label;
-        let inputId = activities[i].id;
+        var inputName = activities[i].label;
+        var inputId = activities[i].id;
 
         this.log.debug(
-          '(' + this.name + ')' + 'INFO - accessories : activity to configure : ' + inputName
+          '(' + this.name + ')' + 'INFO - readTVAccessories : activity to configure : ' + inputName
         );
 
         if (this.mainActivity == inputName) {
@@ -283,7 +284,7 @@ HarmonySubPlatform.prototype = {
           defaultActivity = activities[i];
         }
 
-        let inputSourceService = this.configureInputSourceService(
+        var inputSourceService = this.configureInputSourceService(
           myHarmonyAccessory,
           inputName,
           inputId,
@@ -393,16 +394,16 @@ HarmonySubPlatform.prototype = {
   },
 
   configureMainService: function (accessory) {
-    let subType = this.name + ' TV';
+    var subType = 'tvService' + this.name + ' TV';
     this.mainService = accessory.getServiceById(this.name, subType);
 
     if (!this.mainService) {
       this.log('(' + this.name + ')' + 'INFO - Creating TV Service');
-      this.mainService = new Service.Television(this.name, 'tvService' + this.name);
-      this.mainService.subtype = subType;
+      this.mainService = new Service.Television(this.name, subType);
       accessory.addService(this.mainService);
     }
-    this._confirmedServices.push(this.mainService);
+
+    var mainServiceName;
 
     if (this.savedNames && this.savedNames[0]) {
       mainServiceName = this.savedNames[0];
@@ -419,6 +420,8 @@ HarmonySubPlatform.prototype = {
       )
       .setCharacteristic(Characteristic.Active, false);
 
+    this._confirmedServices.push(this.mainService);
+
     this.bindCharacteristicEventsForTV(accessory);
 
     this.inputServices = [];
@@ -428,26 +431,22 @@ HarmonySubPlatform.prototype = {
   },
 
   configureMainActivity: function (accessory, activity) {
-    let inputName = activity.label;
-    if (this.devMode) {
-      inputName = 'DEV' + inputName;
-    }
+    var inputName = activity.label;
+
     this.log('(' + this.name + ')' + 'INFO - Configuring Main Activity ' + inputName);
 
     this.mainActivityId = activity.id;
     this.mainService.activityName = inputName;
     this.mainService.activityId = activity.id;
 
-    let subType = this.name + ' Volume';
+    var subType = 'TVSpeaker' + this.name + ' Volume';
     this.tvSpeakerService = accessory.getServiceById(this.name, subType);
 
     if (!this.tvSpeakerService) {
       this.log('(' + this.name + ')' + 'INFO - Creating TV Speaker Service');
-      this.tvSpeakerService = new Service.TelevisionSpeaker(this.name, 'TVSpeaker' + this.name);
-      this.tvSpeakerService.subtype = subType;
+      this.tvSpeakerService = new Service.TelevisionSpeaker(this.name, subType);
       accessory.addService(this.tvSpeakerService);
     }
-    this._confirmedServices.push(this.tvSpeakerService);
 
     this.tvSpeakerService
       .setCharacteristic(Characteristic.Name, this.name)
@@ -457,14 +456,15 @@ HarmonySubPlatform.prototype = {
         Characteristic.VolumeControlType.ABSOLUTE
       );
 
+    this._confirmedServices.push(this.tvSpeakerService);
     this.bindCharacteristicEventsForSpeaker(this.tvSpeakerService);
 
     this.mainService.addLinkedService(this.tvSpeakerService);
   },
 
   configureInputSourceService: function (accessory, inputName, inputId, activity, order) {
-    let subType = inputName + ' Activity';
-    let inputSourceService = accessory.getServiceById(this.name, subType);
+    var subType = 'Input ' + inputName + ' Activity';
+    var inputSourceService = accessory.getServiceById(this.name, subType);
 
     if (!inputSourceService) {
       this.log(
@@ -476,19 +476,17 @@ HarmonySubPlatform.prototype = {
           ' in position ' +
           order
       );
-      inputSourceService = new Service.InputSource(this.name, 'Input' + this.name + inputName);
-      inputSourceService.subtype = subType;
+      inputSourceService = new Service.InputSource(this.name, subType);
       accessory.addService(inputSourceService);
     }
-
-    this._confirmedServices.push(inputSourceService);
 
     inputSourceService.activityName = inputName;
     inputSourceService.activityId = inputId;
 
-    let controlGroup = activity.controlGroup;
+    var controlGroup = activity.controlGroup;
 
     HarmonyAsTVKeysTools.mapKeys(this, controlGroup, inputName, inputSourceService);
+    var inputServiceName;
 
     if (this.savedNames && this.savedNames[inputId]) {
       this.log(
@@ -507,6 +505,7 @@ HarmonySubPlatform.prototype = {
       .setCharacteristic(Characteristic.InputSourceType, Characteristic.InputSourceType.APPLICATION)
       .setCharacteristic(Characteristic.IsConfigured, Characteristic.IsConfigured.CONFIGURED);
 
+    this._confirmedServices.push(inputSourceService);
     return inputSourceService;
   },
 
@@ -1367,7 +1366,7 @@ HarmonySubPlatform.prototype = {
     let currentValue = characteristic.value;
 
     //Actitiy in skippedIfSameState
-    if (HarmonyTools.isActivtyToBeSkipped(this, service.subtype)) {
+    if (HarmonyTools.isActivtyToBeSkipped(this, service.activityName)) {
       this.log.debug(
         '(' +
           this.name +

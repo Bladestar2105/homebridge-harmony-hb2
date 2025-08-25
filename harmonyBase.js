@@ -41,7 +41,6 @@ HarmonyBase.prototype = {
     );
 
     harmonyPlatform.name = config['name'];
-    harmonyPlatform.devMode = HarmonyTools.checkParameter(config['DEVMODE'], false);
 
     harmonyPlatform.addAllActivitiesToSkippedIfSameStateActivitiesList = HarmonyTools.checkParameter(
       config['addAllActivitiesToSkippedIfSameStateActivitiesList'],
@@ -149,7 +148,7 @@ HarmonyBase.prototype = {
       );
     } else if (knownHubsArray) {
       for (let hub of knownHubsArray) {
-        hubInfo = hub.split('|');
+        let hubInfo = hub.split('|');
         if (harmonyPlatform.hubName == undefined || harmonyPlatform.hubName == hubInfo[1]) {
           harmonyPlatform.hubIP = hubInfo[0];
           harmonyPlatform.hubRemoteId = hubInfo[2];
@@ -176,7 +175,7 @@ HarmonyBase.prototype = {
   updateHub: function (harmonyPlatform, knownHubsArray) {
     var found = false;
     for (let hub of knownHubsArray) {
-      hubInfo = hub.split('|');
+      let hubInfo = hub.split('|');
       if (harmonyPlatform.hubRemoteId == hubInfo[2]) {
         if (harmonyPlatform.hubIP != hubInfo[0]) {
           harmonyPlatform.log(
@@ -352,8 +351,9 @@ HarmonyBase.prototype = {
     //creating accessories
 
     for (const accessory of accessoriesToAdd) {
-      let isTv = accessory.category == (AccessoryType.AUDIO_RECEIVER || AccessoryType.TELEVISION);
-
+      let isTv =
+        accessory.category === AccessoryType.AUDIO_RECEIVER ||
+        accessory.category === AccessoryType.TELEVISION;
       if (
         isTv &&
         (harmonyPlatform.mainPlatform._oneTVAdded ||
@@ -602,7 +602,7 @@ HarmonyBase.prototype = {
 
       for (let s = 0; s < myHarmonyAccessory.services.length; s++) {
         let service = myHarmonyAccessory.services[s];
-        if (service.type == HOME_TYPE) {
+        if (service.type == HarmonyConst.HOME_TYPE) {
           let newValue = data[service.HomeId];
 
           if (newValue) {
@@ -633,13 +633,13 @@ HarmonyBase.prototype = {
       '(' + harmonyPlatform.name + ')' + 'INFO - got Home Control : ' + JSON.stringify(data)
     );
 
-    let homeControls = data.data;
+    var homeControls = data.data;
 
     var accessoriesToAdd = [];
     var myHarmonyAccessory;
 
     if (!harmonyPlatform.publishHomeControlsAsIndividualAccessories) {
-      let name = 'HomeControls';
+      var name = 'HomeControls';
       myHarmonyAccessory = this.checkAccessory(harmonyPlatform, name);
       if (!myHarmonyAccessory) {
         myHarmonyAccessory = this.createAccessory(harmonyPlatform, name);
@@ -651,13 +651,9 @@ HarmonyBase.prototype = {
     }
 
     for (var key in homeControls) {
-      let switchName = key;
+      var switchName = key;
 
       if (harmonyPlatform.homeControlsToPublishAsAccessoriesSwitch.includes(switchName)) {
-        if (harmonyPlatform.devMode) {
-          switchName = 'DEV' + switchName;
-        }
-
         harmonyPlatform.log(
           '(' + harmonyPlatform.name + ')' + 'INFO - Discovered Home Control : ' + switchName
         );
@@ -673,8 +669,8 @@ HarmonyBase.prototype = {
           harmonyPlatform._confirmedAccessories.push(myHarmonyAccessory);
         }
 
-        let subType = switchName;
-        let service = this.getSwitchService(
+        var subType = switchName;
+        var service = this.getSwitchService(
           harmonyPlatform,
           myHarmonyAccessory,
           switchName,
@@ -724,7 +720,7 @@ HarmonyBase.prototype = {
         myHarmonyAccessory = this.createAccessory(harmonyPlatform, name);
         accessoriesToAdd.push(myHarmonyAccessory);
       }
-      myHarmonyAccessory.category = AccessoryType;
+      myHarmonyAccessory.category = AccessoryType.SWITCH;
       harmonyPlatform._confirmedAccessories.push(myHarmonyAccessory);
     }
     return myHarmonyAccessory;
@@ -737,7 +733,7 @@ HarmonyBase.prototype = {
       );
 
       var accessoriesToAdd = [];
-      let subType = (harmonyPlatform.devMode ? 'DEV' : '') + 'GeneralVolumeSlider';
+      let subType = 'GeneralVolumeSlider';
       let name = subType;
 
       var myHarmonyAccessory = this.checkVolumeAccessory(harmonyPlatform, accessoriesToAdd, name);
@@ -796,10 +792,10 @@ HarmonyBase.prototype = {
 
       // Accessory Names
 
-      let volumeUpSubType = (harmonyPlatform.devMode ? 'DEV' : '') + 'GeneralVolumeUp';
-      let volumeDownSubType = (harmonyPlatform.devMode ? 'DEV' : '') + 'GeneralVolumeDown';
-      let volumeUpName = volumeUpSubType;
-      let volumeDownName = volumeDownSubType;
+      var volumeUpSubType = 'GeneralVolumeUp';
+      var volumeDownSubType = 'GeneralVolumeDown';
+      var volumeUpName = volumeUpSubType;
+      var volumeDownName = volumeDownSubType;
 
       // Create the accesories and add them to our array to add below
 
@@ -816,7 +812,7 @@ HarmonyBase.prototype = {
 
       // Create volume up service
 
-      let volumeUpService = this.getSwitchService(
+      var volumeUpService = this.getSwitchService(
         harmonyPlatform,
         volumeUpAccessory,
         volumeUpName,
@@ -826,7 +822,7 @@ HarmonyBase.prototype = {
 
       // Create volume down service
 
-      let volumeDownService = this.getSwitchService(
+      var volumeDownService = this.getSwitchService(
         harmonyPlatform,
         volumeDownAccessory,
         volumeDownName,
@@ -837,13 +833,13 @@ HarmonyBase.prototype = {
       //array of commands
       var volumeUpCommandsMap = new Object();
       var volumeDownCommandsMap = new Object();
-      let activities = data.data.activity;
+      var activities = data.data.activity;
       for (let i = 0, len = activities.length; i < len; i++) {
-        let activity = activities[i];
-        let controlGroup = activity.controlGroup;
+        var activity = activities[i];
+        var controlGroup = activity.controlGroup;
         for (let j = 0, len = controlGroup.length; j < len; j++) {
           if (controlGroup[j].name == 'Volume') {
-            let functions = controlGroup[j].function;
+            var functions = controlGroup[j].function;
             for (let k = 0, len = functions.length; k < len; k++) {
               if (functions[k].name == 'VolumeUp') {
                 volumeUpCommandsMap[activity.id] = functions[k].action;
@@ -891,24 +887,24 @@ HarmonyBase.prototype = {
         '(' + harmonyPlatform.name + ')' + 'INFO - Loading general mute Switch...'
       );
 
-      let subType = (harmonyPlatform.devMode ? 'DEV' : '') + 'GeneralMuteSwitch';
+      let subType = 'GeneralMuteSwitch';
       let name = subType;
       var accessoriesToAdd = [];
 
       var myHarmonyAccessory = this.checkVolumeAccessory(harmonyPlatform, accessoriesToAdd, name);
 
-      let service = this.getSwitchService(harmonyPlatform, myHarmonyAccessory, name, subType);
+      var service = this.getSwitchService(harmonyPlatform, myHarmonyAccessory, name, subType);
       service.type = HarmonyConst.GENERALMUTE_TYPE;
 
       //array of commands
       var muteCommandsMap = new Object();
       let activities = data.data.activity;
       for (let i = 0, len = activities.length; i < len; i++) {
-        let activity = activities[i];
-        let controlGroup = activity.controlGroup;
+        var activity = activities[i];
+        var controlGroup = activity.controlGroup;
         for (let j = 0, len = controlGroup.length; j < len; j++) {
           if (controlGroup[j].name == 'Volume') {
-            let functions = controlGroup[j].function;
+            var functions = controlGroup[j].function;
             for (let k = 0, len = functions.length; k < len; k++) {
               if (functions[k].name == 'Mute') {
                 muteCommandsMap[activity.id] = functions[k].action;
@@ -962,10 +958,6 @@ HarmonyBase.prototype = {
         let switchName = sequences[i].name;
 
         if (harmonyPlatform.sequencesToPublishAsAccessoriesSwitch.includes(switchName)) {
-          if (harmonyPlatform.devMode) {
-            switchName = 'DEV' + switchName;
-          }
-
           switchName = switchName + '(' + sequences[i].id + ')';
 
           harmonyPlatform.log(
@@ -983,8 +975,8 @@ HarmonyBase.prototype = {
             harmonyPlatform._confirmedAccessories.push(myHarmonyAccessory);
           }
 
-          let subType = switchName + '-Sequence';
-          let service = this.getSwitchService(
+          var subType = switchName + '-Sequence';
+          var service = this.getSwitchService(
             harmonyPlatform,
             myHarmonyAccessory,
             switchName,
@@ -1115,7 +1107,7 @@ HarmonyBase.prototype = {
   ) {
     let accessoriesToAdd = [];
 
-    switchName = harmonyPlatform.devMode ? 'DEV' + device.label : device.label;
+    let switchName = device.label;
 
     harmonyPlatform.log(
       '(' + harmonyPlatform.name + ')' + 'INFO - Discovered Device : ' + switchName
@@ -1168,8 +1160,8 @@ HarmonyBase.prototype = {
             harmonyPlatform._confirmedAccessories.push(myHarmonyAccessory);
           }
 
-          let subType = switchName + ' ' + (foundNonStateless ? 'Power' : commandFunctions[j].key);
-          let service = this.getSwitchService(
+          var subType = switchName + ' ' + (foundNonStateless ? 'Power' : commandFunctions[j].key);
+          var service = this.getSwitchService(
             harmonyPlatform,
             myHarmonyAccessory,
             customSwitchName ? customSwitchName : switchName,
@@ -1211,7 +1203,7 @@ HarmonyBase.prototype = {
   ) {
     let accessoriesToAdd = [];
 
-    let switchName = harmonyPlatform.devMode ? 'DEV' + device.label : device.label;
+    let switchName = device.label;
 
     harmonyPlatform.log(
       '(' + harmonyPlatform.name + ')' + 'INFO - Discovered Device : ' + switchName
@@ -1277,8 +1269,8 @@ HarmonyBase.prototype = {
         harmonyPlatform._confirmedAccessories.push(myHarmonyAccessory);
       }
 
-      let subType = switchName + ' ' + functionsKey;
-      let service = this.getSwitchService(
+      var subType = switchName + ' ' + functionsKey;
+      var service = this.getSwitchService(
         harmonyPlatform,
         myHarmonyAccessory,
         customSwitchName ? customSwitchName : switchName,
@@ -1395,12 +1387,12 @@ HarmonyBase.prototype = {
   },
 
   checkAccessory(harmonyPlatform, name) {
-    let fullName = harmonyPlatform.name + (name ? ' ' + name : '');
-    let uuid = UUIDGen.generate(fullName);
-    let foundAccessory = harmonyPlatform._foundAccessories.find((x) => x.UUID == uuid);
+    var fullName = harmonyPlatform.name + (name ? ' ' + name : '');
+    var uuid = UUIDGen.generate(fullName);
+    var foundAccessory = harmonyPlatform._foundAccessories.find((x) => x.UUID == uuid);
 
     if (foundAccessory) {
-      let serialNumber = foundAccessory
+      var serialNumber = foundAccessory
         .getService(Service.AccessoryInformation)
         .getCharacteristic(Characteristic.SerialNumber).value;
       if (serialNumber != uuid) {
@@ -1417,32 +1409,27 @@ HarmonyBase.prototype = {
         );
         foundAccessory
           .getService(Service.AccessoryInformation)
-          .setCharacteristic(Characteristic.SerialNumber, uuid);
+          .setCharacteristic(Characteristic.SerialNumber, uuid)
+          .setCharacteristic(Characteristic.ConfiguredName, name);
       }
     }
     return foundAccessory;
   },
 
   createAccessory(harmonyPlatform, name) {
-    let fullName = harmonyPlatform.name + (name ? ' ' + name : '');
+    var fullName = harmonyPlatform.name + (name ? ' ' + name : '');
     harmonyPlatform.log('(' + harmonyPlatform.name + ')' + 'INFO - Adding Accessory : ' + fullName);
-    let uuid = UUIDGen.generate(fullName);
+    var uuid = UUIDGen.generate(fullName);
     harmonyPlatform.log.debug(
       '(' + harmonyPlatform.name + ')' + 'INFO - UUID for : *' + fullName + '* is : *' + uuid + '*'
     );
-    let myHarmonyAccessory = new Accessory(fullName, uuid);
+    var myHarmonyAccessory = new Accessory(fullName, uuid);
 
     myHarmonyAccessory.name = fullName;
     myHarmonyAccessory.model = harmonyPlatform.name;
     myHarmonyAccessory.manufacturer = 'Logitech';
 
     myHarmonyAccessory.serialNumber = uuid;
-    /*
-      harmonyPlatform.hubRemoteId == undefined
-        ? harmonyPlatform.hubIP
-        : harmonyPlatform.name + ' ' + harmonyPlatform.hubRemoteId;
-
-    */
 
     myHarmonyAccessory.context.subPlatformName = harmonyPlatform.name;
 
@@ -1450,7 +1437,8 @@ HarmonyBase.prototype = {
       .getService(Service.AccessoryInformation)
       .setCharacteristic(Characteristic.Manufacturer, myHarmonyAccessory.manufacturer)
       .setCharacteristic(Characteristic.Model, myHarmonyAccessory.model)
-      .setCharacteristic(Characteristic.SerialNumber, myHarmonyAccessory.serialNumber);
+      .setCharacteristic(Characteristic.SerialNumber, myHarmonyAccessory.serialNumber)
+      .setCharacteristic(Characteristic.ConfiguredName, myHarmonyAccessory.name);
 
     return myHarmonyAccessory;
   },
@@ -1470,19 +1458,20 @@ HarmonyBase.prototype = {
 
   //SWITCH SERVICE
   getSwitchService(harmonyPlatform, accessory, switchName, serviceSubType) {
-    let service = accessory.getServiceById(switchName, serviceSubType);
+    var service = accessory.getServiceById(switchName, serviceSubType);
     if (!service) {
       harmonyPlatform.log(
         '(' +
           harmonyPlatform.name +
           ')' +
-          'INFO - Creating Switch Service ' +
+          'INFO - Creating Switch Service : ' +
           switchName +
           '/' +
           serviceSubType
       );
-      service = new Service.Switch(switchName, 'switchService' + switchName);
-      service.subtype = serviceSubType;
+      service = new Service.Switch(switchName, serviceSubType);
+
+      service.name = serviceSubType;
       accessory.addService(service);
     }
     return service;
@@ -1590,6 +1579,8 @@ HarmonyBase.prototype = {
   },
 
   bindCharacteristicEventsForSwitch: function (harmonyPlatform, service) {
+    service.setCharacteristic(Characteristic.Name, service.name);
+
     service
       .getCharacteristic(Characteristic.On)
       .on(
@@ -1608,7 +1599,7 @@ HarmonyBase.prototype = {
 
   //SLIDER SERVICE FOR VOLUME
   getSliderService(harmonyPlatform, accessory, sliderName, serviceSubType) {
-    let service = accessory.getServiceById(sliderName, serviceSubType);
+    var service = accessory.getServiceById(sliderName, serviceSubType);
     if (!service) {
       harmonyPlatform.log(
         '(' +
@@ -1619,8 +1610,8 @@ HarmonyBase.prototype = {
           '/' +
           serviceSubType
       );
-      service = new Service.Lightbulb(sliderName, 'sliderService' + sliderName);
-      service.subtype = serviceSubType;
+      service = new Service.Lightbulb(sliderName, serviceSubType);
+      service.name = serviceSubType;
       accessory.addService(service);
     }
     return service;
@@ -1784,6 +1775,7 @@ HarmonyBase.prototype = {
 
     let numberOFcommandsToSend = 1;
     let commandToSendArray = incommingCommandToSend.split('|');
+    let commandToSend;
     if (commandToSendArray.length > 1) {
       commandToSend = commandToSendArray[0];
       if (commandToSendArray[1] != undefined) numberOFcommandsToSend = commandToSendArray[1];
