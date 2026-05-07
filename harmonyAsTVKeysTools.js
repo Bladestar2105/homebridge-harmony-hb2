@@ -1,6 +1,6 @@
-const HarmonyConst = require('./harmonyConst');
+import HarmonyConst from './harmonyConst.js';
 
-module.exports = {
+const HarmonyAsTVKeysTools = {
   mapKeys: function (platform, controlGroup, inputName, inputSourceService) {
     //keys
     for (let j = 0, len = controlGroup.length; j < len; j++) {
@@ -335,3 +335,5 @@ function getSelectKey(inputService) {
     return inputService.SelectCommand;
   } else return undefined;
 }
+
+export default HarmonyAsTVKeysTools;

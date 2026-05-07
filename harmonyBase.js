@@ -1,11 +1,7 @@
 var Service, Characteristic, Accessory, AccessoryType, UUIDGen;
-const HarmonyConst = require('./harmonyConst');
-const Harmony = require('harmony-websocket');
-const HarmonyTools = require('./harmonyTools.js');
-
-module.exports = {
-  HarmonyBase: HarmonyBase,
-};
+import Harmony from 'harmony-websocket';
+import HarmonyConst from './harmonyConst.js';
+import HarmonyTools from './harmonyTools.js';
 
 function HarmonyBase(api) {
   Service = api.hap.Service;
@@ -1850,3 +1846,5 @@ HarmonyBase.prototype = {
       });
   },
 };
+
+export {HarmonyBase};

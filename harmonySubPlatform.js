@@ -1,14 +1,10 @@
-var Service, Characteristic, AccessoryType, AccessControlManagement, AccessControlEvent;
+var Service, Characteristic, Accessory, AccessoryType, AccessControlManagement, AccessControlEvent;
 
-const HarmonyBase = require('./harmonyBase').HarmonyBase;
-const HarmonyConst = require('./harmonyConst');
-const HarmonyTools = require('./harmonyTools.js');
-const HarmonyAsTVKeysTools = require('./harmonyAsTVKeysTools.js');
-const fs = require('fs');
-
-module.exports = {
-  HarmonySubPlatform: HarmonySubPlatform,
-};
+import fs from 'fs';
+import {HarmonyBase} from './harmonyBase.js';
+import HarmonyConst from './harmonyConst.js';
+import HarmonyTools from './harmonyTools.js';
+import HarmonyAsTVKeysTools from './harmonyAsTVKeysTools.js';
 
 function HarmonySubPlatform(log, config, api, mainPlatform) {
   Service = api.hap.Service;
@@ -1455,3 +1451,5 @@ HarmonySubPlatform.prototype = {
       );
   },
 };
+
+export {HarmonySubPlatform};

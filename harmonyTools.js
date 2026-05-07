@@ -1,6 +1,6 @@
-const HarmonyConst = require('./harmonyConst');
+import HarmonyConst from './harmonyConst.js';
 
-module.exports = {
+const HarmonyTools = {
   isPlatformWithSwitch(platform) {
     if (
       platform.showTurnOffActivity ||
@@ -189,3 +189,5 @@ async function processCommand(hb, platform, command, timeToWait) {
 function delay(timeToWait) {
   return new Promise((resolve) => setTimeout(resolve, timeToWait));
 }
+
+export default HarmonyTools;
