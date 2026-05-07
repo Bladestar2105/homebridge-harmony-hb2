@@ -300,9 +300,6 @@ HarmonyBase.prototype = {
     });
 
     this.harmony.on('automationState', (message) => {
-      //DEBUG
-      //message = JSON.parse('{"type":"automation.state?notify","data":{"hue-light.harmony_virtual_button_2":{"color":{"mode":"xy","xy":{"y":0,"x":0},"temp":300,"hueSat":{"hue":0,"sat":0}},"brightness":254,"on":true,"status":0}}}');
-
       harmonyPlatform.log.debug(
         'INFO - onMessage : Refreshing Home Automation Switch ' + JSON.stringify(message.data)
       );
@@ -593,6 +590,10 @@ HarmonyBase.prototype = {
   },
 
   refreshHomeSwitch(harmonyPlatform, data) {
+    if (!data || typeof data !== 'object') {
+      return;
+    }
+
     for (let a = 0; a < harmonyPlatform._foundAccessories.length; a++) {
       let myHarmonyAccessory = harmonyPlatform._foundAccessories[a];
 
@@ -621,7 +622,7 @@ HarmonyBase.prototype = {
   },
 
   handleHomeControls: function (harmonyPlatform, data) {
-    if (!data || !data.data) {
+    if (!data || !data.data || typeof data.data !== 'object') {
       return;
     }
 
@@ -646,7 +647,11 @@ HarmonyBase.prototype = {
       harmonyPlatform._confirmedAccessories.push(myHarmonyAccessory);
     }
 
-    for (var key in homeControls) {
+    for (const key of Object.keys(homeControls)) {
+      if (!HarmonyTools.isSafeObjectKey(key)) {
+        continue;
+      }
+
       var switchName = key;
 
       if (harmonyPlatform.homeControlsToPublishAsAccessoriesSwitch.includes(switchName)) {
@@ -695,12 +700,6 @@ HarmonyBase.prototype = {
       return this.harmony.getAutomationCommands();
     } else {
       var responseHome = {};
-      //DEBUG
-      /*
-      responseHome = JSON.parse(
-        ' {"cmd":"harmony.automation?getstate","code":200,"id":"0.11199321450018873","msg":"OK","data":{"hue-light.harmony_virtual_button_3":{"color":{"mode":"xy","xy":{"y":0,"x":0},"temp":300,"hueSat":{"hue":0,"sat":0}},"brightness":254,"on":true,"status":0},"hue-light.harmony_virtual_button_4":{"color":{"mode":"xy","xy":{"y":0,"x":0},"temp":300,"hueSat":{"hue":0,"sat":0}},"brightness":254,"on":false,"status":0},"hue-light.harmony_virtual_button_1":{"color":{"mode":"xy","xy":{"y":0,"x":0},"temp":300,"hueSat":{"hue":0,"sat":0}},"brightness":254,"on":false,"status":0},"hue-light.harmony_virtual_button_2":{"color":{"mode":"xy","xy":{"y":0,"x":0},"temp":300,"hueSat":{"hue":0,"sat":0}},"brightness":254,"on":false,"status":0}}}'
-      );
-*/
       return Promise.resolve(responseHome);
     }
   },
@@ -1476,9 +1475,20 @@ HarmonyBase.prototype = {
   setSwitchOnCharacteristic: function (harmonyPlatform, service, value, callback) {
     //send command
     if (service.type === HarmonyConst.HOME_TYPE) {
+      if (!HarmonyTools.isSafeObjectKey(service.HomeId)) {
+        harmonyPlatform.log(
+          '(' +
+            harmonyPlatform.name +
+            ')' +
+            'ERROR - setSwitchOnCharacteristic : invalid home control id'
+        );
+        callback();
+        return;
+      }
+
       let command = {};
       command.on = value;
-      let commandToSend = {};
+      let commandToSend = Object.create(null);
       commandToSend[service.HomeId] = command;
       this.sendAutomationCommand(harmonyPlatform, commandToSend);
     } else if (value || !service.isStateless) {
@@ -1494,8 +1504,14 @@ HarmonyBase.prototype = {
           command = service.offCommand;
         }
 
-        let commands = JSON.parse(command);
-        HarmonyTools.processCommands(this, harmonyPlatform, commands);
+        let commands = HarmonyTools.parseJsonArray(command);
+        if (commands.length === 0) {
+          harmonyPlatform.log(
+            '(' + harmonyPlatform.name + ')' + 'ERROR - invalid device macro command'
+          );
+        } else {
+          HarmonyTools.processCommands(this, harmonyPlatform, commands);
+        }
       } else if (service.type === HarmonyConst.SEQUENCE_TYPE) {
         let command = '{"sequenceId":"' + service.sequenceId + '"}';
         this.sendCommand(harmonyPlatform, command);

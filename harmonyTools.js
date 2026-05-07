@@ -1,6 +1,48 @@
 import HarmonyConst from './harmonyConst.js';
 
+const UNSAFE_OBJECT_KEYS = new Set(['__proto__', 'prototype', 'constructor']);
+const MAX_MACRO_COMMANDS = 100;
+const MAX_MACRO_DELAY = 10000;
+
 const HarmonyTools = {
+  isSafeObjectKey: function (key) {
+    return typeof key === 'string' && key.length > 0 && !UNSAFE_OBJECT_KEYS.has(key);
+  },
+
+  safeFileNameSegment: function (value) {
+    const segment = String(value === undefined || value === null ? 'unknown' : value)
+      .replace(/[\\/\0]/g, '_')
+      .trim();
+    return segment.length > 0 ? segment.slice(0, 128) : 'unknown';
+  },
+
+  parseJsonObject: function (value, fallback = {}) {
+    try {
+      const parsed = JSON.parse(String(value));
+      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+        return fallback;
+      }
+
+      return Object.entries(parsed).reduce((result, [key, entryValue]) => {
+        if (this.isSafeObjectKey(key)) {
+          result[key] = entryValue;
+        }
+        return result;
+      }, Object.create(null));
+    } catch (err) {
+      return fallback;
+    }
+  },
+
+  parseJsonArray: function (value, fallback = []) {
+    try {
+      const parsed = JSON.parse(String(value));
+      return Array.isArray(parsed) ? parsed : fallback;
+    } catch (err) {
+      return fallback;
+    }
+  },
+
   isPlatformWithSwitch(platform) {
     if (
       platform.showTurnOffActivity ||
@@ -107,11 +149,17 @@ const HarmonyTools = {
   },
 
   processCommands: async function (hb, platform, commands) {
-    for (const command of commands) {
+    const safeCommands = Array.isArray(commands) ? commands.slice(0, MAX_MACRO_COMMANDS) : [];
+
+    for (const command of safeCommands) {
+      if (typeof command !== 'string' || command.length === 0) {
+        continue;
+      }
+
       let commandTosend = command.split('|');
-      let timeToWait = HarmonyConst.DELAY_FOR_MACRO;
-      if (commandTosend.length === 2) timeToWait = commandTosend[1];
-      else timeToWait = HarmonyConst.DELAY_FOR_MACRO;
+      let timeToWait = Number(commandTosend.length === 2 ? commandTosend[1] : NaN);
+      if (!Number.isFinite(timeToWait)) timeToWait = HarmonyConst.DELAY_FOR_MACRO;
+      timeToWait = Math.max(0, Math.min(timeToWait, MAX_MACRO_DELAY));
       await processCommand(hb, platform, commandTosend[0], timeToWait);
     }
   },

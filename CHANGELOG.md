@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 - [FIX] Publish the plugin as ESM for Homebridge v2 compatibility
 - [FIX] Update Homebridge and Node.js engine requirements for Homebridge v2
+- [FIX] Harden JSON/config parsing and local preference file names
 
 ## 2.0.0beta
 

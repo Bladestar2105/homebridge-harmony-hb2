@@ -1,6 +1,7 @@
 var Service, Characteristic, Accessory, AccessoryType, AccessControlManagement, AccessControlEvent;
 
 import fs from 'fs';
+import path from 'path';
 import {HarmonyBase} from './harmonyBase.js';
 import HarmonyConst from './harmonyConst.js';
 import HarmonyTools from './harmonyTools.js';
@@ -61,10 +62,18 @@ function HarmonySubPlatform(log, config, api, mainPlatform) {
 
     if (Array.isArray(this.remoteOverrideCommandsList)) {
       this.log.debug('(' + this.name + ')' + 'INFO - remoteOverrideCommandsList is in new format');
-      const NewRemoteOverrideCommandsList = {};
+      const NewRemoteOverrideCommandsList = Object.create(null);
       this.remoteOverrideCommandsList.forEach((x) => {
-        var commands = {};
-        x.CommandsList.forEach((y) => (commands[y.CommandName] = y.NewCommand));
+        if (!x || !HarmonyTools.isSafeObjectKey(x.ActivityName) || !Array.isArray(x.CommandsList)) {
+          return;
+        }
+
+        var commands = Object.create(null);
+        x.CommandsList.forEach((y) => {
+          if (y && HarmonyTools.isSafeObjectKey(y.CommandName)) {
+            commands[y.CommandName] = y.NewCommand;
+          }
+        });
         NewRemoteOverrideCommandsList[x.ActivityName] = commands;
       });
       this.remoteOverrideCommandsList = NewRemoteOverrideCommandsList;
@@ -104,29 +113,36 @@ function HarmonySubPlatform(log, config, api, mainPlatform) {
       this.prefsDir = this.prefsDir + '/';
     }
 
-    this.savedNamesFile =
-      this.prefsDir +
-      'harmonyPluginNames_' +
-      this.name +
-      '_' +
-      (this.hubIP == undefined ? this.name : this.hubIP.split('.').join(''));
-    this.savedVisibilityFile =
-      this.prefsDir +
-      'harmonyPluginVisibility_' +
-      this.name +
-      '_' +
-      (this.hubIP == undefined ? this.name : this.hubIP.split('.').join(''));
+    const prefsName = HarmonyTools.safeFileNameSegment(this.name);
+    const prefsHub = HarmonyTools.safeFileNameSegment(
+      this.hubIP == undefined ? this.name : this.hubIP.split('.').join('')
+    );
 
-    this.savedNames = {};
+    this.savedNamesFile = path.join(
+      this.prefsDir,
+      'harmonyPluginNames_' + prefsName + '_' + prefsHub
+    );
+    this.savedVisibilityFile = path.join(
+      this.prefsDir,
+      'harmonyPluginVisibility_' + prefsName + '_' + prefsHub
+    );
+
+    this.savedNames = Object.create(null);
     try {
-      this.savedNames = JSON.parse(fs.readFileSync(this.savedNamesFile));
+      this.savedNames = HarmonyTools.parseJsonObject(
+        fs.readFileSync(this.savedNamesFile, 'utf8'),
+        Object.create(null)
+      );
     } catch (err) {
       this.log.debug('(' + this.name + ')' + 'INFO - input names file does not exist');
     }
 
-    this.savedVisibility = {};
+    this.savedVisibility = Object.create(null);
     try {
-      this.savedVisibility = JSON.parse(fs.readFileSync(this.savedVisibilityFile));
+      this.savedVisibility = HarmonyTools.parseJsonObject(
+        fs.readFileSync(this.savedVisibilityFile, 'utf8'),
+        Object.create(null)
+      );
     } catch (err) {
       this.log.debug('(' + this.name + ')' + 'INFO - input visibility file does not exist');
     }
