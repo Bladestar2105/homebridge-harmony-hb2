@@ -1479,7 +1479,6 @@ HarmonyBase.prototype = {
     } else if (HarmonyTools.isNil(service.name)) {
       service.name = HarmonyTools.isNil(serviceSubType) ? switchName : serviceSubType;
     }
-    harmonyPlatform.log('(' + harmonyPlatform.name + ')' + 'INFO - TEST ' + service.name);
     return service;
   },
 
