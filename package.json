@@ -1,6 +1,6 @@
 {
   "name": "homebridge-harmony-hb2",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "author": "Bladestar2105",
   "description": "Publish your harmony activities as homekit accessories for homebridge-2.0.0 and later.",
   "type": "module",

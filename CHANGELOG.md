@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2.0.1
+
+- [FIX] Make the Homebridge config schema valid JSON Schema by moving required
+  fields to object-level `required` arrays.
+
 ## 2.0.0
 
 - [FIX] Publish the plugin as ESM for Homebridge v2 compatibility
