@@ -3,20 +3,16 @@
 [![Homebridge verified plugin badge](https://badgen.net/badge/homebridge/verified/purple)](https://github.com/homebridge/homebridge/wiki/Verified-Plugins)
 
 [![npm package version badge for homebridge-harmony-hb2](https://badgen.net/npm/v/homebridge-harmony-hb2)](https://www.npmjs.com/package/homebridge-harmony-hb2)
-[![npm package download badge for homebridge-harmony](https://badgen.net/npm/dw/homebridge-harmony)](https://www.npmjs.com/package/homebridge-harmony)
-[![npm total downloads badge for homebridge-harmony](https://badgen.net/npm/dt/homebridge-harmony)](https://www.npmjs.com/package/homebridge-harmony)
+[![npm weekly downloads badge for homebridge-harmony-hb2](https://badgen.net/npm/dw/homebridge-harmony-hb2)](https://www.npmjs.com/package/homebridge-harmony-hb2)
+[![npm total downloads badge for homebridge-harmony-hb2](https://badgen.net/npm/dt/homebridge-harmony-hb2)](https://www.npmjs.com/package/homebridge-harmony-hb2)
+[![GitHub repository badge for Bladestar2105/homebridge-harmony-hb2](https://badgen.net/badge/github/Bladestar2105%2Fhomebridge-harmony-hb2/blue)](https://github.com/Bladestar2105/homebridge-harmony-hb2)
+[![GitHub Sponsors badge for Bladestar2105](https://img.shields.io/github/sponsors/Bladestar2105?label=sponsor&logo=github)](https://github.com/sponsors/Bladestar2105/)
 
-[![Travis CI build status badge for homebridge-harmony master branch](https://travis-ci.com/nicoduj/homebridge-harmony.svg?branch=master)](https://travis-ci.com/nicoduj/homebridge-harmony)
 [![Prettier code style badge](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
-[![CodeFactor quality badge for homebridge-harmony repository](https://www.codefactor.io/repository/github/nicoduj/homebridge-harmony/badge)](https://www.codefactor.io/repository/github/nicoduj/homebridge-harmony/overview/dynamic-platform)
-
-[![Snyk known vulnerabilities badge for homebridge-harmony](https://snyk.io/test/github/nicoduj/homebridge-harmony/badge.svg?targetFile=package.json)](https://snyk.io/test/github/nicoduj/homebridge-harmony?targetFile=package.json)
-
-[![PayPal support badge for sponsoring development][paypal-button]][paypal-nicoduj]
 
 [Logitech Harmony](https://www.myharmony.com/en-us/) plugin for [HomeBridge](https://github.com/homebridge/homebridge) using WebSockets.
 
-[![Discord server status badge for homebridge harmony support channel](https://img.shields.io/discord/432663330281226270.svg?label=discord)](https://discord.gg/KYcX25z)
+Maintained by [Bladestar2105](https://github.com/Bladestar2105) at [Bladestar2105/homebridge-harmony-hb2](https://github.com/Bladestar2105/homebridge-harmony-hb2).
 
 This plugin is publishing harmony hub activities and devices as switches, with some advanced option (see below) for custom needs like macros, sequences, and much more. The TV mode is focused on harmony hub activities only at the moment : each activity of the hub is mapped to an input. A main activity is linked to the on/off switch of the accessory. Buttons on the remote app and volume controls will be binded to the one defined in the activity (if so). VOLUME IS BIND TO PHYSICAL BUTTONS WHEN REMOTE FROM CONTROL CENTER IS SHOWN . There is an option to override default mappings.
 
@@ -29,7 +25,7 @@ This plugin is publishing harmony hub activities and devices as switches, with s
 Requires Homebridge `^1.8.0 || ^2.0.0` and Node.js `^22 || ^24`.
 
 1. Install Homebridge using: `npm install -g homebridge`
-2. Install this plugin using: `npm install -g homebridge-harmony`
+2. Install this plugin using: `npm install -g homebridge-harmony-hb2`
 3. Update your Homebridge `config.json` using the sample below.
 
 ## Note about homebridge configuration
@@ -44,7 +40,7 @@ Since this plugin can expose external accessories (TV), you should probably set 
       },
 ```
 
-Also, if you use child Bridge (since Homebridge 1.3.0), it makes sense only if you publish switches / bridges accessories. If you are only running a default TV accessory, it will publish an empty bridge that might be confusing (see https://github.com/nicoduj/homebridge-harmony/issues/347 for more details)
+Also, if you use child Bridge (since Homebridge 1.3.0), it makes sense only if you publish switches / bridges accessories. If you are only running a default TV accessory, it will publish an empty bridge that might be confusing (see https://github.com/Bladestar2105/homebridge-harmony-hb2/issues for more details)
 
 ## Migration from 0.X to 1.X
 
@@ -305,15 +301,14 @@ Thanks to
 [gitgayhub]: https://github.com/gitgayhub
 [donavanbecker]: https://github.com/donavanbecker
 
-## Donating
+## Support
 
-Support this project and [others by nicoduj][nicoduj-projects] via [PayPal][paypal-nicoduj].
+Support this project via [GitHub Sponsors][github-sponsors-bladestar2105].
 
-[![Support via PayPal][paypal-button]][paypal-nicoduj]
+[![Sponsor Bladestar2105 on GitHub][github-sponsors-button]][github-sponsors-bladestar2105]
 
-[nicoduj-projects]: https://github.com/nicoduj/
-[paypal-button]: https://img.shields.io/badge/Donate-PayPal-green.svg
-[paypal-nicoduj]: https://www.paypal.me/nicoduj
+[github-sponsors-button]: https://img.shields.io/badge/Sponsor-GitHub%20Sponsors-ea4aaa.svg?logo=github-sponsors
+[github-sponsors-bladestar2105]: https://github.com/sponsors/Bladestar2105/
 
 ## License
 

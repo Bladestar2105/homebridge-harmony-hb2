@@ -1,5 +1,6 @@
 import {HarmonyPlatform} from './harmonyPlatform.js';
+import HarmonyConst from './harmonyConst.js';
 
 export default function (api) {
-  api.registerPlatform('HarmonyHubWebSocket', HarmonyPlatform);
+  api.registerPlatform(HarmonyConst.PLATFORM_NAME, HarmonyPlatform);
 }

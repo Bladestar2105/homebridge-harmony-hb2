@@ -353,7 +353,9 @@ HarmonyBase.prototype = {
           harmonyPlatform.mainPlatform.publishAllTVAsExternalAccessory)
       ) {
         try {
-          harmonyPlatform.api.publishExternalAccessories('homebridge-harmony', [accessory]);
+          harmonyPlatform.api.publishExternalAccessories(HarmonyConst.PLUGIN_IDENTIFIER, [
+            accessory,
+          ]);
           harmonyPlatform.log(
             '(' +
               harmonyPlatform.name +
@@ -435,8 +437,8 @@ HarmonyBase.prototype = {
 
     if (accstoRemove.length > 0)
       harmonyPlatform.api.unregisterPlatformAccessories(
-        'homebridge-harmony',
-        'HarmonyHubWebSocket',
+        HarmonyConst.PLUGIN_IDENTIFIER,
+        HarmonyConst.PLATFORM_NAME,
         accstoRemove
       );
   },
@@ -1445,8 +1447,8 @@ HarmonyBase.prototype = {
     );
 
     harmonyPlatform.api.registerPlatformAccessories(
-      'homebridge-harmony',
-      'HarmonyHubWebSocket',
+      HarmonyConst.PLUGIN_IDENTIFIER,
+      HarmonyConst.PLATFORM_NAME,
       accessoriesToAdd
     );
   },

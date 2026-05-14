@@ -21,7 +21,7 @@ function HarmonyPlatform(log, config, api) {
   AccessoryType = this.api.hap.Categories;
 
   if (!config) {
-    log('No configuration found for homebridge-harmony');
+    log('No configuration found for ' + HarmonyConst.PLUGIN_IDENTIFIER);
     return;
   }
 
@@ -71,8 +71,8 @@ function HarmonyPlatform(log, config, api) {
           for (let i = 0, len = this.platforms.length; i < len; i++) {
             let platform = this.platforms[i];
             platform.api.unregisterPlatformAccessories(
-              'homebridge-harmony',
-              'HarmonyHubWebSocket',
+              HarmonyConst.PLUGIN_IDENTIFIER,
+              HarmonyConst.PLATFORM_NAME,
               platform._foundAccessories
             );
             platform._foundAccessories = [];
@@ -81,8 +81,8 @@ function HarmonyPlatform(log, config, api) {
 
         if (this._AccessoriesToRemove.length > 0) {
           this.api.unregisterPlatformAccessories(
-            'homebridge-harmony',
-            'HarmonyHubWebSocket',
+            HarmonyConst.PLUGIN_IDENTIFIER,
+            HarmonyConst.PLATFORM_NAME,
             this._AccessoriesToRemove
           );
         }

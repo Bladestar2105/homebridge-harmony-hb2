@@ -8,7 +8,13 @@
   "scripts": {
     "test": "node -e \"import('./index.js').then(() => console.log('No syntax errors! (node ' + process.version + ')'))\""
   },
-  "license": "ISC",
+  "license": "Unlicense",
+  "files": [
+    "CHANGELOG.md",
+    "config.schema.json",
+    "harmony*.js",
+    "index.js"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Bladestar2105/homebridge-harmony-hb2.git"
