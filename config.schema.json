@@ -2,8 +2,8 @@
   "pluginAlias": "HarmonyHubWebSocket",
   "pluginType": "platform",
   "singular": true,
-  "headerDisplay": "This plugin is provided by [nicoduj](https://github.com/nicoduj/)",
-  "footerDisplay": "Support via [paypal](https://www.paypal.me/nicoduj).",
+  "headerDisplay": "This plugin is provided by [Bladestar2105](https://github.com/Bladestar2105/)",
+  "footerDisplay": "Support via [github sponsors](https://github.com/sponsors/Bladestar2105/).",
   "schema": {
     "type": "object",
     "properties": {

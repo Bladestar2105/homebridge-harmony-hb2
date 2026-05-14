@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## 2.0.0-beta5
+## 2.0.0
 
 - [FIX] Publish the plugin as ESM for Homebridge v2 compatibility
 - [FIX] Update Homebridge and Node.js engine requirements for Homebridge v2

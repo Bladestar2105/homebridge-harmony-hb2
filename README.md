@@ -1,24 +1,22 @@
-# homebridge-harmony
+# homebridge-harmony-hb2
 
-[![verified-by-homebridge](https://badgen.net/badge/homebridge/verified/purple)](https://github.com/homebridge/homebridge/wiki/Verified-Plugins)
+[![Homebridge verified plugin badge](https://badgen.net/badge/homebridge/verified/purple)](https://github.com/homebridge/homebridge/wiki/Verified-Plugins)
 
-[![npm](https://badgen.net/npm/v/homebridge-harmony)](https://www.npmjs.com/package/homebridge-harmony)
-[![npm](https://badgen.net/npm/dw/homebridge-harmony)](https://www.npmjs.com/package/homebridge-harmony)
-[![npm](https://badgen.net/npm/dt/homebridge-harmony)](https://www.npmjs.com/package/homebridge-harmony)
+[![npm package version badge for homebridge-harmony-hb2](https://badgen.net/npm/v/homebridge-harmony-hb2)](https://www.npmjs.com/package/homebridge-harmony-hb2)
+[![npm package download badge for homebridge-harmony](https://badgen.net/npm/dw/homebridge-harmony)](https://www.npmjs.com/package/homebridge-harmony)
+[![npm total downloads badge for homebridge-harmony](https://badgen.net/npm/dt/homebridge-harmony)](https://www.npmjs.com/package/homebridge-harmony)
 
-[![Build Status](https://travis-ci.com/nicoduj/homebridge-harmony.svg?branch=master)](https://travis-ci.com/nicoduj/homebridge-harmony)
-[![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
-[![CodeFactor](https://www.codefactor.io/repository/github/nicoduj/homebridge-harmony/badge)](https://www.codefactor.io/repository/github/nicoduj/homebridge-harmony/overview/dynamic-platform)
+[![Travis CI build status badge for homebridge-harmony master branch](https://travis-ci.com/nicoduj/homebridge-harmony.svg?branch=master)](https://travis-ci.com/nicoduj/homebridge-harmony)
+[![Prettier code style badge](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
+[![CodeFactor quality badge for homebridge-harmony repository](https://www.codefactor.io/repository/github/nicoduj/homebridge-harmony/badge)](https://www.codefactor.io/repository/github/nicoduj/homebridge-harmony/overview/dynamic-platform)
 
-[![Known Vulnerabilities](https://snyk.io/test/github/nicoduj/homebridge-harmony/badge.svg?targetFile=package.json)](https://snyk.io/test/github/nicoduj/homebridge-harmony?targetFile=package.json)
+[![Snyk known vulnerabilities badge for homebridge-harmony](https://snyk.io/test/github/nicoduj/homebridge-harmony/badge.svg?targetFile=package.json)](https://snyk.io/test/github/nicoduj/homebridge-harmony?targetFile=package.json)
 
-[![Support via PayPal][paypal-button]][paypal-nicoduj]
+[![PayPal support badge for sponsoring development][paypal-button]][paypal-nicoduj]
 
 [Logitech Harmony](https://www.myharmony.com/en-us/) plugin for [HomeBridge](https://github.com/homebridge/homebridge) using WebSockets.
 
-You can discuss this plugin on [Discord](https://discord.gg/DsAMVktZjS) in #harmony channel
-
-[![Discord Status](https://img.shields.io/discord/432663330281226270.svg?label=discord)](https://discord.gg/KYcX25z)
+[![Discord server status badge for homebridge harmony support channel](https://img.shields.io/discord/432663330281226270.svg?label=discord)](https://discord.gg/KYcX25z)
 
 This plugin is publishing harmony hub activities and devices as switches, with some advanced option (see below) for custom needs like macros, sequences, and much more. The TV mode is focused on harmony hub activities only at the moment : each activity of the hub is mapped to an input. A main activity is linked to the on/off switch of the accessory. Buttons on the remote app and volume controls will be binded to the one defined in the activity (if so). VOLUME IS BIND TO PHYSICAL BUTTONS WHEN REMOTE FROM CONTROL CENTER IS SHOWN . There is an option to override default mappings.
 

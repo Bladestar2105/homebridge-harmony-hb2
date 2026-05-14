@@ -1,8 +1,8 @@
 {
-  "name": "homebridge-harmony",
-  "version": "2.0.0-beta5",
-  "author": "Nicolas Dujardin",
-  "description": "Publish your harmony activities as homekit accessories",
+  "name": "homebridge-harmony-hb2",
+  "version": "2.0.0",
+  "author": "Bladestar2105",
+  "description": "Publish your harmony activities as homekit accessories for homebridge-2.0.0 and later.",
   "type": "module",
   "main": "index.js",
   "scripts": {
@@ -11,7 +11,7 @@
   "license": "ISC",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nicoduj/homebridge-harmony.git"
+    "url": "git+https://github.com/Bladestar2105/homebridge-harmony-hb2.git"
   },
   "engines": {
     "homebridge": "^1.8.0 || ^2.0.0",
@@ -30,9 +30,9 @@
     "harmony-websocket": "^1.5.5"
   },
   "bugs": {
-    "url": "https://github.com/nicoduj/homebridge-harmony/issues"
+    "url": "https://github.com/Bladestar2105/homebridge-harmony-hb2/issues"
   },
-  "homepage": "https://github.com/nicoduj/homebridge-harmony#readme",
+  "homepage": "https://github.com/Bladestar2105/homebridge-harmony-hb2#readme",
   "devDependencies": {
     "husky": "^3.1.0",
     "prettier": "2.0.0",
@@ -52,11 +52,7 @@
   "funding": [
     {
       "type": "github",
-      "url": "https://github.com/sponsors/nicoduj/"
-    },
-    {
-      "type": "paypal",
-      "url": "https://www.paypal.me/nicoduj/"
+      "url": "https://github.com/sponsors/Bladestar2105/"
     }
   ]
 }
