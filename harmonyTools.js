@@ -1,6 +1,56 @@
-const HarmonyConst = require('./harmonyConst');
+import HarmonyConst from './harmonyConst.js';
 
-module.exports = {
+const UNSAFE_OBJECT_KEYS = new Set(['__proto__', 'prototype', 'constructor']);
+const MAX_MACRO_COMMANDS = 100;
+const MAX_MACRO_DELAY = 10000;
+
+const HarmonyTools = {
+  isSafeObjectKey: function (key) {
+    return typeof key === 'string' && key.length > 0 && !UNSAFE_OBJECT_KEYS.has(key);
+  },
+
+  isNil: function (value) {
+    return value === undefined || value === null;
+  },
+
+  isNotNil: function (value) {
+    return value !== undefined && value !== null;
+  },
+
+  safeFileNameSegment: function (value) {
+    const segment = String(this.isNil(value) ? 'unknown' : value)
+      .replace(/[\\/\0]/g, '_')
+      .trim();
+    return segment.length > 0 ? segment.slice(0, 128) : 'unknown';
+  },
+
+  parseJsonObject: function (value, fallback = {}) {
+    try {
+      const parsed = JSON.parse(String(value));
+      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+        return fallback;
+      }
+
+      return Object.entries(parsed).reduce((result, [key, entryValue]) => {
+        if (this.isSafeObjectKey(key)) {
+          result[key] = entryValue;
+        }
+        return result;
+      }, Object.create(null));
+    } catch (err) {
+      return fallback;
+    }
+  },
+
+  parseJsonArray: function (value, fallback = []) {
+    try {
+      const parsed = JSON.parse(String(value));
+      return Array.isArray(parsed) ? parsed : fallback;
+    } catch (err) {
+      return fallback;
+    }
+  },
+
   isPlatformWithSwitch(platform) {
     if (
       platform.showTurnOffActivity ||
@@ -30,7 +80,7 @@ module.exports = {
   },
 
   checkParameter: function (parameter, def) {
-    if (parameter == undefined) {
+    if (this.isNil(parameter)) {
       return def;
     } else {
       if (typeof parameter === 'string') {
@@ -52,7 +102,7 @@ module.exports = {
   },
 
   transformActivityIdToActiveIdentifier: function (currentInputService, sources) {
-    if (currentInputService !== undefined && currentInputService.activityId > 0) {
+    if (this.isNotNil(currentInputService) && currentInputService.activityId > 0) {
       for (let i = 0, len = sources.length; i < len; i++) {
         if (sources[i].activityId == currentInputService.activityId) return i + 1;
       }
@@ -66,7 +116,7 @@ module.exports = {
   },
 
   checkTurnOffActivityOption: function (str) {
-    if (str == null || str == undefined) return false;
+    if (this.isNil(str)) return false;
 
     if (typeof str === 'boolean') {
       return str === true;
@@ -107,11 +157,17 @@ module.exports = {
   },
 
   processCommands: async function (hb, platform, commands) {
-    for (const command of commands) {
+    const safeCommands = Array.isArray(commands) ? commands.slice(0, MAX_MACRO_COMMANDS) : [];
+
+    for (const command of safeCommands) {
+      if (typeof command !== 'string' || command.length === 0) {
+        continue;
+      }
+
       let commandTosend = command.split('|');
-      let timeToWait = HarmonyConst.DELAY_FOR_MACRO;
-      if (commandTosend.length === 2) timeToWait = commandTosend[1];
-      else timeToWait = HarmonyConst.DELAY_FOR_MACRO;
+      let timeToWait = Number(commandTosend.length === 2 ? commandTosend[1] : NaN);
+      if (!Number.isFinite(timeToWait)) timeToWait = HarmonyConst.DELAY_FOR_MACRO;
+      timeToWait = Math.max(0, Math.min(timeToWait, MAX_MACRO_DELAY));
       await processCommand(hb, platform, commandTosend[0], timeToWait);
     }
   },
@@ -189,3 +245,5 @@ async function processCommand(hb, platform, command, timeToWait) {
 function delay(timeToWait) {
   return new Promise((resolve) => setTimeout(resolve, timeToWait));
 }
+
+export default HarmonyTools;

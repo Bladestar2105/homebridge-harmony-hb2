@@ -1,14 +1,11 @@
-var Service, Characteristic, AccessoryType, AccessControlManagement, AccessControlEvent;
+var Service, Characteristic, Accessory, AccessoryType, AccessControlManagement, AccessControlEvent;
 
-const HarmonyBase = require('./harmonyBase').HarmonyBase;
-const HarmonyConst = require('./harmonyConst');
-const HarmonyTools = require('./harmonyTools.js');
-const HarmonyAsTVKeysTools = require('./harmonyAsTVKeysTools.js');
-const fs = require('fs');
-
-module.exports = {
-  HarmonySubPlatform: HarmonySubPlatform,
-};
+import fs from 'fs';
+import path from 'path';
+import {HarmonyBase} from './harmonyBase.js';
+import HarmonyConst from './harmonyConst.js';
+import HarmonyTools from './harmonyTools.js';
+import HarmonyAsTVKeysTools from './harmonyAsTVKeysTools.js';
 
 function HarmonySubPlatform(log, config, api, mainPlatform) {
   Service = api.hap.Service;
@@ -65,10 +62,18 @@ function HarmonySubPlatform(log, config, api, mainPlatform) {
 
     if (Array.isArray(this.remoteOverrideCommandsList)) {
       this.log.debug('(' + this.name + ')' + 'INFO - remoteOverrideCommandsList is in new format');
-      const NewRemoteOverrideCommandsList = {};
+      const NewRemoteOverrideCommandsList = Object.create(null);
       this.remoteOverrideCommandsList.forEach((x) => {
-        var commands = {};
-        x.CommandsList.forEach((y) => (commands[y.CommandName] = y.NewCommand));
+        if (!x || !HarmonyTools.isSafeObjectKey(x.ActivityName) || !Array.isArray(x.CommandsList)) {
+          return;
+        }
+
+        var commands = Object.create(null);
+        x.CommandsList.forEach((y) => {
+          if (y && HarmonyTools.isSafeObjectKey(y.CommandName)) {
+            commands[y.CommandName] = y.NewCommand;
+          }
+        });
         NewRemoteOverrideCommandsList[x.ActivityName] = commands;
       });
       this.remoteOverrideCommandsList = NewRemoteOverrideCommandsList;
@@ -108,29 +113,36 @@ function HarmonySubPlatform(log, config, api, mainPlatform) {
       this.prefsDir = this.prefsDir + '/';
     }
 
-    this.savedNamesFile =
-      this.prefsDir +
-      'harmonyPluginNames_' +
-      this.name +
-      '_' +
-      (this.hubIP == undefined ? this.name : this.hubIP.split('.').join(''));
-    this.savedVisibilityFile =
-      this.prefsDir +
-      'harmonyPluginVisibility_' +
-      this.name +
-      '_' +
-      (this.hubIP == undefined ? this.name : this.hubIP.split('.').join(''));
+    const prefsName = HarmonyTools.safeFileNameSegment(this.name);
+    const prefsHub = HarmonyTools.safeFileNameSegment(
+      HarmonyTools.isNil(this.hubIP) ? this.name : this.hubIP.split('.').join('')
+    );
 
-    this.savedNames = {};
+    this.savedNamesFile = path.join(
+      this.prefsDir,
+      'harmonyPluginNames_' + prefsName + '_' + prefsHub
+    );
+    this.savedVisibilityFile = path.join(
+      this.prefsDir,
+      'harmonyPluginVisibility_' + prefsName + '_' + prefsHub
+    );
+
+    this.savedNames = Object.create(null);
     try {
-      this.savedNames = JSON.parse(fs.readFileSync(this.savedNamesFile));
+      this.savedNames = HarmonyTools.parseJsonObject(
+        fs.readFileSync(this.savedNamesFile, 'utf8'),
+        Object.create(null)
+      );
     } catch (err) {
       this.log.debug('(' + this.name + ')' + 'INFO - input names file does not exist');
     }
 
-    this.savedVisibility = {};
+    this.savedVisibility = Object.create(null);
     try {
-      this.savedVisibility = JSON.parse(fs.readFileSync(this.savedVisibilityFile));
+      this.savedVisibility = HarmonyTools.parseJsonObject(
+        fs.readFileSync(this.savedVisibilityFile, 'utf8'),
+        Object.create(null)
+      );
     } catch (err) {
       this.log.debug('(' + this.name + ')' + 'INFO - input visibility file does not exist');
     }
@@ -220,6 +232,7 @@ HarmonySubPlatform.prototype = {
           switchName,
           subType
         );
+
         service.activityName = activities[i].label;
         service.activityId = activities[i].id;
         service.type = HarmonyConst.ACTIVITY_TYPE;
@@ -280,7 +293,7 @@ HarmonySubPlatform.prototype = {
         if (this.mainActivity == inputName) {
           this.configureMainActivity(myHarmonyAccessory, activities[i]);
           mainActivityConfigured = true;
-        } else if (defaultActivity == undefined) {
+        } else if (HarmonyTools.isNil(defaultActivity)) {
           defaultActivity = activities[i];
         }
 
@@ -304,7 +317,7 @@ HarmonySubPlatform.prototype = {
           ')' +
           'WARNING - No main Activity that match config file found, default to first one'
       );
-      if (defaultActivity == undefined)
+      if (HarmonyTools.isNil(defaultActivity))
         this.log(
           '(' + this.name + ')' + 'ERROR - No  Activity at all was found for this TV accessory'
         );
@@ -400,6 +413,7 @@ HarmonySubPlatform.prototype = {
     if (!this.mainService) {
       this.log('(' + this.name + ')' + 'INFO - Creating TV Service');
       this.mainService = new Service.Television(this.name, subType);
+      this.mainService.name = HarmonyTools.isNil(subType) ? this.name : subType;
       accessory.addService(this.mainService);
     }
 
@@ -445,6 +459,7 @@ HarmonySubPlatform.prototype = {
     if (!this.tvSpeakerService) {
       this.log('(' + this.name + ')' + 'INFO - Creating TV Speaker Service');
       this.tvSpeakerService = new Service.TelevisionSpeaker(this.name, subType);
+      this.tvSpeakerService.name = HarmonyTools.isNil(subType) ? this.name : subType;
       accessory.addService(this.tvSpeakerService);
     }
 
@@ -477,6 +492,8 @@ HarmonySubPlatform.prototype = {
           order
       );
       inputSourceService = new Service.InputSource(this.name, subType);
+
+      inputSourceService.name = HarmonyTools.isNil(subType) ? inputName : subType;
       accessory.addService(inputSourceService);
     }
 
@@ -527,7 +544,7 @@ HarmonySubPlatform.prototype = {
     this.harmonyBase.handleCharacteristicUpdate(
       this,
       this.mainService.getCharacteristic(Characteristic.Active),
-      this._currentInputService !== undefined
+      HarmonyTools.isNotNil(this._currentInputService)
     );
 
     this.harmonyBase.handleCharacteristicUpdate(
@@ -591,7 +608,7 @@ HarmonySubPlatform.prototype = {
   refreshCurrentActivityOnSubPlatform: function (response) {
     this._currentActivityLastUpdate = Date.now();
 
-    if (response === undefined) return;
+    if (HarmonyTools.isNil(response)) return;
     this._currentActivity = response;
 
     this.localRefresh();
@@ -704,8 +721,8 @@ HarmonySubPlatform.prototype = {
 
     if (
       !this.playPauseBehavior ||
-      this._currentInputService.PauseCommand === undefined ||
-      this.playStatus[this._currentActivity] === undefined ||
+      HarmonyTools.isNil(this._currentInputService.PauseCommand) ||
+      HarmonyTools.isNil(this.playStatus[this._currentActivity]) ||
       this.playStatus[this._currentActivity] === 'PAUSED'
     ) {
       this.log.debug('(' + this.name + ')' + 'INFO - sending PlayCommand for PLAY_PAUSE');
@@ -747,12 +764,12 @@ HarmonySubPlatform.prototype = {
               this.name +
               ')' +
               'INFO - refreshCharacteristic : updating Characteristic.Active to ' +
-              (this._currentInputService !== undefined)
+              HarmonyTools.isNotNil(this._currentInputService)
           );
           this.harmonyBase.handleCharacteristicUpdate(
             this,
             characteristic,
-            this._currentInputService !== undefined
+            HarmonyTools.isNotNil(this._currentInputService)
           );
         } else if (characteristic.UUID == Characteristic.ActiveIdentifier.UUID) {
           this.log.debug(
@@ -810,7 +827,7 @@ HarmonySubPlatform.prototype = {
         } else {
           //we push back the execution to let the second event be taken care of in case of switching on with a dedicated input.
           setTimeout(() => {
-            if (this._currentInputService == undefined) {
+            if (HarmonyTools.isNil(this._currentInputService)) {
               var currentActivity = HarmonyTools.transformActiveIdentifierToActivityId(
                 service.getCharacteristic(Characteristic.ActiveIdentifier).value,
                 this.inputServices
@@ -926,7 +943,7 @@ HarmonySubPlatform.prototype = {
     characteristic.on(
       'set',
       function (value, callback) {
-        if (this._currentInputService !== undefined) {
+        if (HarmonyTools.isNotNil(this._currentInputService)) {
           this.log.debug('(' + this.name + ')' + 'INFO - SET Characteristic.Mute : ' + value);
 
           let overrideMUTE = HarmonyAsTVKeysTools.getOverrideCommand(this, 'MUTE');
@@ -953,7 +970,7 @@ HarmonySubPlatform.prototype = {
     characteristic.on(
       'set',
       function (value, callback) {
-        if (this._currentInputService !== undefined) {
+        if (HarmonyTools.isNotNil(this._currentInputService)) {
           this.log.debug(
             '(' + this.name + ')' + 'INFO - SET Characteristic.VolumeSelector : ' + value
           );
@@ -1131,7 +1148,7 @@ HarmonySubPlatform.prototype = {
     characteristic.on(
       'set',
       function (value, callback) {
-        if (this._currentInputService !== undefined) {
+        if (HarmonyTools.isNotNil(this._currentInputService)) {
           this.log.debug(
             '(' + this.name + ')' + 'INFO - SET Characteristic.PowerModeSelection : ' + value
           );
@@ -1231,17 +1248,18 @@ HarmonySubPlatform.prototype = {
     if (service.type == HarmonyConst.GENERALVOLUME_TYPE) {
       return (
         this._currentActivity > -1 &&
-        service.volumeDownCommands[this._currentActivity] !== undefined &&
-        service.volumeUpCommands[this._currentActivity] !== undefined
+        HarmonyTools.isNotNil(service.volumeDownCommands[this._currentActivity]) &&
+        HarmonyTools.isNotNil(service.volumeUpCommands[this._currentActivity])
       );
     } else if (service.type == HarmonyConst.GENERALVOLUMEUP_TYPE) {
       return (
-        this._currentActivity > -1 && service.volumeUpCommands[this._currentActivity] !== undefined
+        this._currentActivity > -1 &&
+        HarmonyTools.isNotNil(service.volumeUpCommands[this._currentActivity])
       );
     } else if (service.type == HarmonyConst.GENERALVOLUMEDOWN_TYPE) {
       return (
         this._currentActivity > -1 &&
-        service.volumeDownCommands[this._currentActivity] !== undefined
+        HarmonyTools.isNotNil(service.volumeDownCommands[this._currentActivity])
       );
     } else if (service.activityId == -1) {
       if (
@@ -1455,3 +1473,5 @@ HarmonySubPlatform.prototype = {
       );
   },
 };
+
+export {HarmonySubPlatform};

@@ -1,11 +1,7 @@
 var Service, Characteristic, Accessory, AccessoryType, UUIDGen;
-const HarmonyConst = require('./harmonyConst');
-const Harmony = require('harmony-websocket');
-const HarmonyTools = require('./harmonyTools.js');
-
-module.exports = {
-  HarmonyBase: HarmonyBase,
-};
+import Harmony from 'harmony-websocket';
+import HarmonyConst from './harmonyConst.js';
+import HarmonyTools from './harmonyTools.js';
 
 function HarmonyBase(api) {
   Service = api.hap.Service;
@@ -136,7 +132,11 @@ HarmonyBase.prototype = {
 
   //hub discovery events handling
   checkHubsFound: function (harmonyPlatform, knownHubsArray) {
-    if (knownHubsArray && knownHubsArray.length > 1 && harmonyPlatform.hubName == undefined) {
+    if (
+      knownHubsArray &&
+      knownHubsArray.length > 1 &&
+      HarmonyTools.isNil(harmonyPlatform.hubName)
+    ) {
       harmonyPlatform.log(
         '(' +
           harmonyPlatform.name +
@@ -149,14 +149,14 @@ HarmonyBase.prototype = {
     } else if (knownHubsArray) {
       for (let hub of knownHubsArray) {
         let hubInfo = hub.split('|');
-        if (harmonyPlatform.hubName == undefined || harmonyPlatform.hubName == hubInfo[1]) {
+        if (HarmonyTools.isNil(harmonyPlatform.hubName) || harmonyPlatform.hubName == hubInfo[1]) {
           harmonyPlatform.hubIP = hubInfo[0];
           harmonyPlatform.hubRemoteId = hubInfo[2];
           this.initHub(harmonyPlatform);
           break;
         }
       }
-      if (harmonyPlatform.hubRemoteId == undefined) {
+      if (HarmonyTools.isNil(harmonyPlatform.hubRemoteId)) {
         harmonyPlatform.log(
           '(' +
             harmonyPlatform.name +
@@ -245,14 +245,14 @@ HarmonyBase.prototype = {
 
     // if it has a fixed ip, won't be autodiscovered
 
-    if (harmonyPlatform.hubIP !== undefined) {
+    if (HarmonyTools.isNotNil(harmonyPlatform.hubIP)) {
       this.initHub(harmonyPlatform);
     } else {
       harmonyPlatform.mainPlatform.on('discoveredHubs', (knownHubsArray) => {
         harmonyPlatform.log(
           '(' + harmonyPlatform.name + ')' + 'INFO - received discovered hubs  ' + knownHubsArray
         );
-        if (harmonyPlatform.hubRemoteId == undefined) {
+        if (HarmonyTools.isNil(harmonyPlatform.hubRemoteId)) {
           this.checkHubsFound(harmonyPlatform, knownHubsArray);
         } else {
           this.harmony.close().catch((e2) => {
@@ -282,7 +282,7 @@ HarmonyBase.prototype = {
       harmonyPlatform.log('(' + harmonyPlatform.name + ')' + 'WARNING - socket closed');
 
       setTimeout(() => {
-        if (harmonyPlatform.hubRemoteId == undefined) {
+        if (HarmonyTools.isNil(harmonyPlatform.hubRemoteId)) {
           this.harmony
             .connect(harmonyPlatform.hubIP)
             .then(() => {
@@ -304,9 +304,6 @@ HarmonyBase.prototype = {
     });
 
     this.harmony.on('automationState', (message) => {
-      //DEBUG
-      //message = JSON.parse('{"type":"automation.state?notify","data":{"hue-light.harmony_virtual_button_2":{"color":{"mode":"xy","xy":{"y":0,"x":0},"temp":300,"hueSat":{"hue":0,"sat":0}},"brightness":254,"on":true,"status":0}}}');
-
       harmonyPlatform.log.debug(
         'INFO - onMessage : Refreshing Home Automation Switch ' + JSON.stringify(message.data)
       );
@@ -454,7 +451,7 @@ HarmonyBase.prototype = {
       let servicestoRemove = [];
       for (let serv of acc.services) {
         if (
-          serv.subtype !== undefined &&
+          HarmonyTools.isNotNil(serv.subtype) &&
           !harmonyPlatform._confirmedServices.find(
             (x) => x.UUID == serv.UUID && x.subtype == serv.subtype
           )
@@ -597,6 +594,10 @@ HarmonyBase.prototype = {
   },
 
   refreshHomeSwitch(harmonyPlatform, data) {
+    if (!data || typeof data !== 'object') {
+      return;
+    }
+
     for (let a = 0; a < harmonyPlatform._foundAccessories.length; a++) {
       let myHarmonyAccessory = harmonyPlatform._foundAccessories[a];
 
@@ -625,7 +626,7 @@ HarmonyBase.prototype = {
   },
 
   handleHomeControls: function (harmonyPlatform, data) {
-    if (!data || !data.data) {
+    if (!data || !data.data || typeof data.data !== 'object') {
       return;
     }
 
@@ -650,7 +651,11 @@ HarmonyBase.prototype = {
       harmonyPlatform._confirmedAccessories.push(myHarmonyAccessory);
     }
 
-    for (var key in homeControls) {
+    for (const key of Object.keys(homeControls)) {
+      if (!HarmonyTools.isSafeObjectKey(key)) {
+        continue;
+      }
+
       var switchName = key;
 
       if (harmonyPlatform.homeControlsToPublishAsAccessoriesSwitch.includes(switchName)) {
@@ -699,12 +704,6 @@ HarmonyBase.prototype = {
       return this.harmony.getAutomationCommands();
     } else {
       var responseHome = {};
-      //DEBUG
-      /*
-      responseHome = JSON.parse(
-        ' {"cmd":"harmony.automation?getstate","code":200,"id":"0.11199321450018873","msg":"OK","data":{"hue-light.harmony_virtual_button_3":{"color":{"mode":"xy","xy":{"y":0,"x":0},"temp":300,"hueSat":{"hue":0,"sat":0}},"brightness":254,"on":true,"status":0},"hue-light.harmony_virtual_button_4":{"color":{"mode":"xy","xy":{"y":0,"x":0},"temp":300,"hueSat":{"hue":0,"sat":0}},"brightness":254,"on":false,"status":0},"hue-light.harmony_virtual_button_1":{"color":{"mode":"xy","xy":{"y":0,"x":0},"temp":300,"hueSat":{"hue":0,"sat":0}},"brightness":254,"on":false,"status":0},"hue-light.harmony_virtual_button_2":{"color":{"mode":"xy","xy":{"y":0,"x":0},"temp":300,"hueSat":{"hue":0,"sat":0}},"brightness":254,"on":false,"status":0}}}'
-      );
-*/
       return Promise.resolve(responseHome);
     }
   },
@@ -818,6 +817,7 @@ HarmonyBase.prototype = {
         volumeUpName,
         volumeUpSubType
       );
+
       volumeUpService.type = HarmonyConst.GENERALVOLUMEUP_TYPE;
 
       // Create volume down service
@@ -828,6 +828,7 @@ HarmonyBase.prototype = {
         volumeDownName,
         volumeDownSubType
       );
+
       volumeDownService.type = HarmonyConst.GENERALVOLUMEDOWN_TYPE;
 
       //array of commands
@@ -894,6 +895,7 @@ HarmonyBase.prototype = {
       var myHarmonyAccessory = this.checkVolumeAccessory(harmonyPlatform, accessoriesToAdd, name);
 
       var service = this.getSwitchService(harmonyPlatform, myHarmonyAccessory, name, subType);
+
       service.type = HarmonyConst.GENERALMUTE_TYPE;
 
       //array of commands
@@ -1164,7 +1166,7 @@ HarmonyBase.prototype = {
           var service = this.getSwitchService(
             harmonyPlatform,
             myHarmonyAccessory,
-            customSwitchName ? customSwitchName : switchName,
+            HarmonyTools.isNil(customSwitchName) ? switchName : customSwitchName,
             subType
           );
 
@@ -1273,7 +1275,7 @@ HarmonyBase.prototype = {
       var service = this.getSwitchService(
         harmonyPlatform,
         myHarmonyAccessory,
-        customSwitchName ? customSwitchName : switchName,
+        HarmonyTools.isNil(customSwitchName) ? switchName : customSwitchName,
         subType
       );
 
@@ -1459,6 +1461,7 @@ HarmonyBase.prototype = {
   //SWITCH SERVICE
   getSwitchService(harmonyPlatform, accessory, switchName, serviceSubType) {
     var service = accessory.getServiceById(switchName, serviceSubType);
+
     if (!service) {
       harmonyPlatform.log(
         '(' +
@@ -1471,18 +1474,32 @@ HarmonyBase.prototype = {
       );
       service = new Service.Switch(switchName, serviceSubType);
 
-      service.name = serviceSubType;
+      service.name = HarmonyTools.isNil(serviceSubType) ? switchName : serviceSubType;
       accessory.addService(service);
+    } else if (HarmonyTools.isNil(service.name)) {
+      service.name = HarmonyTools.isNil(serviceSubType) ? switchName : serviceSubType;
     }
+    harmonyPlatform.log('(' + harmonyPlatform.name + ')' + 'INFO - TEST ' + service.name);
     return service;
   },
 
   setSwitchOnCharacteristic: function (harmonyPlatform, service, value, callback) {
     //send command
     if (service.type === HarmonyConst.HOME_TYPE) {
+      if (!HarmonyTools.isSafeObjectKey(service.HomeId)) {
+        harmonyPlatform.log(
+          '(' +
+            harmonyPlatform.name +
+            ')' +
+            'ERROR - setSwitchOnCharacteristic : invalid home control id'
+        );
+        callback();
+        return;
+      }
+
       let command = {};
       command.on = value;
-      let commandToSend = {};
+      let commandToSend = Object.create(null);
       commandToSend[service.HomeId] = command;
       this.sendAutomationCommand(harmonyPlatform, commandToSend);
     } else if (value || !service.isStateless) {
@@ -1498,8 +1515,14 @@ HarmonyBase.prototype = {
           command = service.offCommand;
         }
 
-        let commands = JSON.parse(command);
-        HarmonyTools.processCommands(this, harmonyPlatform, commands);
+        let commands = HarmonyTools.parseJsonArray(command);
+        if (commands.length === 0) {
+          harmonyPlatform.log(
+            '(' + harmonyPlatform.name + ')' + 'ERROR - invalid device macro command'
+          );
+        } else {
+          HarmonyTools.processCommands(this, harmonyPlatform, commands);
+        }
       } else if (service.type === HarmonyConst.SEQUENCE_TYPE) {
         let command = '{"sequenceId":"' + service.sequenceId + '"}';
         this.sendCommand(harmonyPlatform, command);
@@ -1536,7 +1559,7 @@ HarmonyBase.prototype = {
       }
 
       // In order to behave like a push button reset the status to off
-      if (service.isStateless === undefined || service.isStateless === true) {
+      if (HarmonyTools.isNil(service.isStateless) || service.isStateless === true) {
         HarmonyTools.resetCharacteristic(
           service,
           Characteristic.On,
@@ -1567,7 +1590,7 @@ HarmonyBase.prototype = {
         );
       });
     } else {
-      let stateless = (service.isStateless === undefined) | service.isStateless;
+      let stateless = HarmonyTools.isNil(service.isStateless) || service.isStateless;
 
       this.handleCharacteristicUpdate(
         harmonyPlatform,
@@ -1611,8 +1634,10 @@ HarmonyBase.prototype = {
           serviceSubType
       );
       service = new Service.Lightbulb(sliderName, serviceSubType);
-      service.name = serviceSubType;
+      service.name = HarmonyTools.isNil(serviceSubType) ? sliderName : serviceSubType;
       accessory.addService(service);
+    } else if (HarmonyTools.isNil(service.name)) {
+      service.name = HarmonyTools.isNil(serviceSubType) ? sliderName : serviceSubType;
     }
     return service;
   },
@@ -1621,8 +1646,8 @@ HarmonyBase.prototype = {
     var isOn = false;
     if (
       harmonyPlatform._currentActivity > -1 &&
-      service.volumeDownCommands[harmonyPlatform._currentActivity] !== undefined &&
-      service.volumeUpCommands[harmonyPlatform._currentActivity] !== undefined
+      HarmonyTools.isNotNil(service.volumeDownCommands[harmonyPlatform._currentActivity]) &&
+      HarmonyTools.isNotNil(service.volumeUpCommands[harmonyPlatform._currentActivity])
     ) {
       isOn = true;
     }
@@ -1647,8 +1672,8 @@ HarmonyBase.prototype = {
     //always on if current activity set and volumes is mapped , off otherwise
     if (
       harmonyPlatform._currentActivity > -1 &&
-      service.volumeDownCommands[harmonyPlatform._currentActivity] !== undefined &&
-      service.volumeUpCommands[harmonyPlatform._currentActivity] !== undefined
+      HarmonyTools.isNotNil(service.volumeDownCommands[harmonyPlatform._currentActivity]) &&
+      HarmonyTools.isNotNil(service.volumeUpCommands[harmonyPlatform._currentActivity])
     ) {
       isOn = true;
     }
@@ -1712,8 +1737,8 @@ HarmonyBase.prototype = {
     //always on if current activity set and volumes is mapped , off otherwise
     if (
       harmonyPlatform._currentActivity > -1 &&
-      service.volumeDownCommands[harmonyPlatform._currentActivity] !== undefined &&
-      service.volumeUpCommands[harmonyPlatform._currentActivity] !== undefined
+      HarmonyTools.isNotNil(service.volumeDownCommands[harmonyPlatform._currentActivity]) &&
+      HarmonyTools.isNotNil(service.volumeUpCommands[harmonyPlatform._currentActivity])
     ) {
       newVolume = 50;
     }
@@ -1850,3 +1875,5 @@ HarmonyBase.prototype = {
       });
   },
 };
+
+export {HarmonyBase};

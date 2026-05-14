@@ -1,6 +1,7 @@
-const HarmonyConst = require('./harmonyConst');
+import HarmonyConst from './harmonyConst.js';
+import HarmonyTools from './harmonyTools.js';
 
-module.exports = {
+const HarmonyAsTVKeysTools = {
   mapKeys: function (platform, controlGroup, inputName, inputSourceService) {
     //keys
     for (let j = 0, len = controlGroup.length; j < len; j++) {
@@ -31,7 +32,7 @@ module.exports = {
     const Characteristic = platform.api.hap.Characteristic;
     if (
       platform._currentActivity > HarmonyConst.CURRENT_ACTIVITY_NOT_SET_VALUE &&
-      platform._currentInputService !== undefined
+      HarmonyTools.isNotNil(platform._currentInputService)
     ) {
       let overrideARROWUP = this.getOverrideCommand(platform, 'ARROW_UP');
       keysMap[Characteristic.RemoteKey.ARROW_UP] = overrideARROWUP
@@ -335,3 +336,5 @@ function getSelectKey(inputService) {
     return inputService.SelectCommand;
   } else return undefined;
 }
+
+export default HarmonyAsTVKeysTools;

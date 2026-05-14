@@ -1,5 +1,5 @@
-const HarmonyPlatform = require('./harmonyPlatform').HarmonyPlatform;
+import {HarmonyPlatform} from './harmonyPlatform.js';
 
-module.exports = function (homebridge) {
-  homebridge.registerPlatform('homebridge-harmony', 'HarmonyHubWebSocket', HarmonyPlatform, true);
-};
+export default function (api) {
+  api.registerPlatform('HarmonyHubWebSocket', HarmonyPlatform);
+}

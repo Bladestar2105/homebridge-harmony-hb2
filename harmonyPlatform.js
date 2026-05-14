@@ -1,15 +1,13 @@
 var AccessoryType;
-const HarmonySubPlatform = require('./harmonySubPlatform').HarmonySubPlatform;
-const HarmonyConst = require('./harmonyConst');
-const HarmonyTools = require('./harmonyTools.js');
-const Explorer = require('@harmonyhub/discover').Explorer;
-const discover = new Explorer(61991);
-var EventEmitter = require('events');
-var inherits = require('util').inherits;
+import {EventEmitter} from 'events';
+import {inherits} from 'util';
+import discoverPackage from '@harmonyhub/discover';
+import {HarmonySubPlatform} from './harmonySubPlatform.js';
+import HarmonyConst from './harmonyConst.js';
+import HarmonyTools from './harmonyTools.js';
 
-module.exports = {
-  HarmonyPlatform: HarmonyPlatform,
-};
+const {Explorer} = discoverPackage;
+const discover = new Explorer(61991);
 
 function HarmonyPlatform(log, config, api) {
   EventEmitter.call(this);
@@ -95,7 +93,7 @@ function HarmonyPlatform(log, config, api) {
           platform.harmonyBase.configureAccessories(platform);
 
           //check for discovery
-          if (platform.hubIP == undefined) {
+          if (HarmonyTools.isNil(platform.hubIP)) {
             launchDiscovery = true;
           }
         }
@@ -115,7 +113,7 @@ HarmonyPlatform.prototype = {
     if (this.platforms && this.platforms.length > 0)
       platform = this.platforms.find((x) => x.name == platformName);
 
-    if (platform == undefined) {
+    if (HarmonyTools.isNil(platform)) {
       this.log(
         'WARNING - configureAccessory - The platform ' +
           platformName +
@@ -187,3 +185,5 @@ HarmonyPlatform.prototype = {
 };
 
 inherits(HarmonyPlatform, EventEmitter);
+
+export {HarmonyPlatform};
