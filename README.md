@@ -1,6 +1,5 @@
 # homebridge-harmony-hb2
 
-[![Homebridge verified plugin badge](https://badgen.net/badge/homebridge/verified/purple)](https://github.com/homebridge/homebridge/wiki/Verified-Plugins)
 
 [![npm package version badge for homebridge-harmony-hb2](https://badgen.net/npm/v/homebridge-harmony-hb2)](https://www.npmjs.com/package/homebridge-harmony-hb2)
 [![npm weekly downloads badge for homebridge-harmony-hb2](https://badgen.net/npm/dw/homebridge-harmony-hb2)](https://www.npmjs.com/package/homebridge-harmony-hb2)
