@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2.0.1
+
+- [FIX] Fixing incorrect naming after added for nested services
+
 ## 2.0.0
 
 - [FIX] Publish the plugin as ESM for Homebridge v2 compatibility

@@ -1473,11 +1473,9 @@ HarmonyBase.prototype = {
           serviceSubType
       );
       service = new Service.Switch(switchName, serviceSubType);
-
-      service.name = HarmonyTools.isNil(serviceSubType) ? switchName : serviceSubType;
+      service.addOptionalCharacteristic(Characteristic.ConfiguredName);
+      service.setCharacteristic(Characteristic.ConfiguredName, switchName);
       accessory.addService(service);
-    } else if (HarmonyTools.isNil(service.name)) {
-      service.name = HarmonyTools.isNil(serviceSubType) ? switchName : serviceSubType;
     }
     return service;
   },
@@ -1633,10 +1631,9 @@ HarmonyBase.prototype = {
           serviceSubType
       );
       service = new Service.Lightbulb(sliderName, serviceSubType);
-      service.name = HarmonyTools.isNil(serviceSubType) ? sliderName : serviceSubType;
+      service.addOptionalCharacteristic(Characteristic.ConfiguredName);
+      service.setCharacteristic(Characteristic.ConfiguredName, sliderName);
       accessory.addService(service);
-    } else if (HarmonyTools.isNil(service.name)) {
-      service.name = HarmonyTools.isNil(serviceSubType) ? sliderName : serviceSubType;
     }
     return service;
   },
